@@ -4,7 +4,7 @@ require 'judge'
 
 module Judge
 
-  # The judge-cli module exposes a command-line interface using Thor.
+  # Exposes a command-line interface using Thor.
   class Cli < Thor
 
     desc 'server', 'start a RPC server on PORT'
