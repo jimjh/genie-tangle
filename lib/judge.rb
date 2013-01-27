@@ -9,6 +9,7 @@ $:.push gen
 require gen + 'judge'
 
 require 'judge/server'
+require 'judge/client'
 
 module Judge
   class << self
@@ -26,6 +27,13 @@ module Judge
       Server.new(opts).serve.value
     rescue Interrupt
       logger.info 'Court adjourned.'
+    end
+
+    # Starts a client.
+    def client(cmd, argv, opts={})
+      reset_logger opts
+      results = Client.new(opts).__invoke__ { |c| c.public_send(cmd, *argv) }
+      logger.info "Response: #{results.inspect}"
     end
 
   end

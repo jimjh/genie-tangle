@@ -17,9 +17,7 @@ end
 
 describe Judge::Server do
 
-  let(:rand)   { Random.rand(100) }
-
-  describe '::initialize' do
+  describe '#initialize' do
 
     it 'sets the port number' do
       Judge::Server.new('port' => rand).port.should be(rand)
@@ -31,7 +29,7 @@ describe Judge::Server do
 
   end
 
-  describe '::serve' do
+  describe '#serve' do
 
     let(:server) { Judge::Server.new }
 

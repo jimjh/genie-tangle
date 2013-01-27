@@ -6,6 +6,7 @@ module Test
 
     extend RSpec::Core::SharedContext
     let(:output) { OUTPUT.flush; OUTPUT.string }
+    let(:rand)   { Random.rand(100) }
 
   end
 
