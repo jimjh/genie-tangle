@@ -23,7 +23,6 @@ module Judge
       @server   = Thrift::SimpleServer.new(processor, socket, factory)
     end
 
-    # TODO: logging
     # Starts the Thrift RPC server and returns the server thread. Note that
     # while the server may spawn new threads, the returned thread completes
     # only after the server has stopped.
