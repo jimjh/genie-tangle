@@ -20,7 +20,7 @@ module Judge
       @socket   = Thrift::ServerSocket.new('::1', port)
       processor = Processor.new Handler.new
       factory   = Thrift::BufferedTransportFactory.new
-      @server   = Thrift::SimpleServer.new(processor, socket, factory)
+      @server   = Thrift::ThreadedServer.new(processor, socket, factory)
     end
 
     # Starts the Thrift RPC server and returns the server thread. Note that
