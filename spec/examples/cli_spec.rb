@@ -16,7 +16,7 @@ describe Judge::Cli do
   describe '::server' do
 
     it 'invokes Judge::server' do
-      Judge.expects(:server).with('port' => 1234).returns(nil)
+      Judge.expects(:server).with(has_entry('port', 1234)).returns(nil)
       Judge::Cli.start(%w[server --port 1234])
     end
 

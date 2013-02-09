@@ -11,15 +11,12 @@ module Judge
   # @note This is patched into the generated client class.
   class Client
 
-    # Host defaults to localhost
-    DEFAULT_HOST = '::1'
-
     attr_reader :host, :port, :transport
 
     # @option opts [String] host ('::1')       host
     # @option opts [String] port               port number (required)
     def initialize(opts={})
-      @host = opts['host'] || DEFAULT_HOST
+      @host = opts['host'] || HOST
       @port = opts['port'] || raise(ArgumentError, ':port is a required option')
       socket     = Thrift::Socket.new host, port
       @transport = Thrift::BufferedTransport.new socket

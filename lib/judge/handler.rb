@@ -12,13 +12,15 @@ module Judge
 
     # @return [String] 'pong!'
     def ping
+      log_invocation
       'pong!'
     end
 
     # @return [JudgeInfo] basic information about Judge
     def info
+      log_invocation
       JudgeInfo.new \
-        uptime: uptime,
+        uptime:  uptime,
         threads: threads
     end
 
@@ -34,6 +36,13 @@ module Judge
     # @return [Float] number of seconds since server launch
     def uptime
       Time.now - started
+    end
+
+    # Logs the caller of this method.
+    def log_invocation
+      if Judge.logger.debug?
+        Judge.logger.debug 'Received RPC call: ' + caller[0][/`([^']*)'/, 1]
+      end
     end
 
   end

@@ -7,16 +7,12 @@ module Judge
 
     attr_reader :port, :socket, :thread
 
-    # Defaults to an ephemeral port
-    DEFAULT_PORT = 0
-
     # Number of seconds to wait while server is starting up
     SPIN = 0.1
 
-    # TODO: use other subclasses of BaseServer?
     # @option opts [Fixnum] port     port number
     def initialize(opts={})
-      @port     = opts['port'] || DEFAULT_PORT
+      @port     = opts['port'] || PORT
       @socket   = Thrift::ServerSocket.new('::1', port)
       processor = Processor.new Handler.new
       factory   = Thrift::BufferedTransportFactory.new

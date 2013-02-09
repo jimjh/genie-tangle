@@ -30,7 +30,7 @@ RSpec.configure do |config|
   config.mock_framework = :mocha
   config.include Test::GlobalContext
 
-  config.before(:suite) { Judge.reset_logger 'output' => Test::OUTPUT }
+  config.before(:suite) { Judge.reset_logger 'log-file' => Test::OUTPUT }
   config.before(:each)  { Judge.stubs(:reset_logger) }
   config.after(:each)   { Test::OUTPUT.truncate 0 }
 
