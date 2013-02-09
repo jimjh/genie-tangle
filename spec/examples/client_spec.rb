@@ -46,7 +46,7 @@ describe Judge::Client do
   describe '#__invoke__' do
 
     it 'invokes the given block within an open transport' do
-      subject.__invoke__ { |c| c.public_send(:ping) }.should eq 'pong!'
+      subject.invoke { ping }.should eq 'pong!'
     end
 
   end

@@ -1,6 +1,7 @@
 # ~*~ encoding: utf-8 ~*~
-require 'thrift'
 require 'pathname'
+require 'thrift'
+require 'pry'
 require 'active_support/core_ext/logger'
 
 # Import the generated ruby code.
@@ -29,10 +30,13 @@ module Judge
       logger.info 'Court adjourned.'
     end
 
-    # Starts a client.
+    # Starts a client and invokes the given command.
     def client(cmd, argv, opts={})
       reset_logger opts
-      results = Client.new(opts).__invoke__ { |c| c.public_send(cmd, *argv) }
+      client = Client.new(opts)
+      results = if cmd.nil? then client.invoke { pry }
+      else client.invoke { public_send(cmd, *argv) }
+      end
       logger.info "Response: #{results.inspect}"
     end
 

@@ -2,13 +2,19 @@
 module Judge
 
   # Contains, configures, and controls the Thrift RPC client.
+  #
+  # @example Ping Pong
+  #     client.transport.open
+  #     client.ping # => 'pong!'
+  #     client.transport.close
+  #
   # @note This is patched into the generated client class.
   class Client
 
     # Host defaults to localhost
     DEFAULT_HOST = '::1'
 
-    attr_reader :host, :port
+    attr_reader :host, :port, :transport
 
     # @option opts [String] host ('::1')       host
     # @option opts [String] port               port number (required)
@@ -22,10 +28,9 @@ module Judge
     end
 
     # Invokes given block within an open transport.
-    # @yieldparam [Client] self       the current instance
-    def __invoke__
+    def invoke(&block)
       @transport.open
-      yield self
+      instance_eval(&block)
     rescue => e
       Judge.logger.error e.message
     ensure

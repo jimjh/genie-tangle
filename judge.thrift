@@ -3,12 +3,14 @@
 # Judge Service
 # This file defines the RPC interface. Use `./judge.thrift` to compile it and
 # generate the ruby files.
-# (Wow. I never knew magic cookies work that way.)
 # Jim Lim <jiunnhal@cmu.edu>
 
+struct JudgeInfo {
+  1: double           uptime,
+  2: map<string, i32> threads
+}
+
 service Judge {
-
-  # ping pong!
   string ping()
-
+  JudgeInfo info()
 }

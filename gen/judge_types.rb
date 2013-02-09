@@ -6,3 +6,21 @@
 
 require 'thrift'
 
+class JudgeInfo
+  include ::Thrift::Struct, ::Thrift::Struct_Union
+  UPTIME = 1
+  THREADS = 2
+
+  FIELDS = {
+    UPTIME => {:type => ::Thrift::Types::DOUBLE, :name => 'uptime'},
+    THREADS => {:type => ::Thrift::Types::MAP, :name => 'threads', :key => {:type => ::Thrift::Types::STRING}, :value => {:type => ::Thrift::Types::I32}}
+  }
+
+  def struct_fields; FIELDS; end
+
+  def validate
+  end
+
+  ::Thrift::Struct.generate_accessors self
+end
+

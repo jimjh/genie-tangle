@@ -26,6 +26,21 @@ module Judge
       raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'ping failed: unknown result')
     end
 
+    def info()
+      send_info()
+      return recv_info()
+    end
+
+    def send_info()
+      send_message('info', Info_args)
+    end
+
+    def recv_info()
+      result = receive_message(Info_result)
+      return result.success unless result.success.nil?
+      raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'info failed: unknown result')
+    end
+
   end
 
   class Processor
@@ -36,6 +51,13 @@ module Judge
       result = Ping_result.new()
       result.success = @handler.ping()
       write_result(result, oprot, 'ping', seqid)
+    end
+
+    def process_info(seqid, iprot, oprot)
+      args = read_args(iprot, Info_args)
+      result = Info_result.new()
+      result.success = @handler.info()
+      write_result(result, oprot, 'info', seqid)
     end
 
   end
@@ -63,6 +85,37 @@ module Judge
 
     FIELDS = {
       SUCCESS => {:type => ::Thrift::Types::STRING, :name => 'success'}
+    }
+
+    def struct_fields; FIELDS; end
+
+    def validate
+    end
+
+    ::Thrift::Struct.generate_accessors self
+  end
+
+  class Info_args
+    include ::Thrift::Struct, ::Thrift::Struct_Union
+
+    FIELDS = {
+
+    }
+
+    def struct_fields; FIELDS; end
+
+    def validate
+    end
+
+    ::Thrift::Struct.generate_accessors self
+  end
+
+  class Info_result
+    include ::Thrift::Struct, ::Thrift::Struct_Union
+    SUCCESS = 0
+
+    FIELDS = {
+      SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => ::JudgeInfo}
     }
 
     def struct_fields; FIELDS; end
