@@ -1,29 +1,30 @@
 # Judge
 
-TODO: Write a gem description
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'judge'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install judge
+Provides autograding service for Genie.
 
 ## Usage
+To get a list of all commands and their options, use
 
-TODO: Write usage instructions here
+```sh
+$ judge help
+```
 
-## Contributing
+To start the server on OS-selected port, use
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+```sh
+$ judge server
+```
+
+To start the client, use
+
+```sh
+$ judge client --port=PORT [COMMAND]
+```
+
+If `COMMAND` is not provided, a pry console will be launched. For example
+
+```sh
+$ bin/judge client --port=12345
+[1] pry(#<Judge::Client>)> info
+=> <JudgeInfo uptime:744.226172, threads:{"total": 22, "running": 1}>
+```
