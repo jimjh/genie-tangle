@@ -12,6 +12,7 @@ module Judge
 
     # @option opts [Fixnum] port     port number
     def initialize(opts={})
+      Judge.logger.info 'Initializing Judge server ...'
       @port     = opts['port'] || PORT
       @socket   = Thrift::ServerSocket.new('::1', port)
       processor = Processor.new Handler.new
@@ -24,7 +25,7 @@ module Judge
     # only after the server has stopped.
     # @return [Thread] thread         main thread for RPC server
     def serve
-      Judge.logger.info 'Starting the Judge service ...'
+      Judge.logger.info 'Starting Judge service ...'
       @thread = Thread.new { @server.serve }
       sleep SPIN while @thread.alive? and not socket.handle # FIXME
       @port = socket.handle.addr[1] and Judge.logger.info status if @thread.alive?

@@ -9,7 +9,9 @@ gen = Pathname.new(__FILE__).dirname + '..' + 'gen'
 $:.push gen
 require gen + 'judge'
 
+require 'judge/version'
 require 'judge/config'
+require 'judge/errors'
 require 'judge/server'
 require 'judge/client'
 
@@ -30,6 +32,7 @@ module Judge
     # @return [void]
     def server(opts={})
       reset_logger opts
+      Judge.logger.info "Judge v#{VERSION}"
       Server.new(opts).serve.value
     rescue Interrupt
       logger.info 'Court adjourned.'

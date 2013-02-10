@@ -23,6 +23,13 @@ module Judge
       ::Judge.client args.shift, args, options
     end
 
+    def self.start(argv)
+      super
+    rescue Abort => e
+      ::Judge.logger.error e.message
+      exit 1
+    end
+
   end
 
 end

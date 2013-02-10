@@ -4,10 +4,13 @@ require 'shared/remote_context'
 describe Judge::Client do
 
   include_context 'remote rpc'
-  subject { Judge::Client.new 'port' => port }
 
-  before(:all) { subject.transport.open }
-  after(:all)  { subject.transport.close }
+  before :each do
+    @client = Judge::Client.new 'port' => port
+    @client.transport.open
+  end
+  after(:each)  { @client.transport.close }
+  subject       { @client }
 
   describe '#ping' do
     its(:ping) { should eq 'pong!' }
@@ -29,11 +32,14 @@ describe Judge::Client do
 
   end
 
-  describe '#add_job', :focus do
+  describe '#add_job' do
 
     context 'basic job' do
       before(:each) { @job = FactoryGirl.create :job, :basic }
       it 'passes all validations' do
+        amq_exchange.expects(:publish)
+          .with(instance_of(String), Judge::RABBIT_JOBS.message[:opts])
+          .once
         subject.add_job(@job).code.should be(StatusCode::SUCCESS)
       end
     end
@@ -69,7 +75,7 @@ describe Judge::Client do
 
     context 'missing input.local' do
       it_behaves_like 'a bad job' do
-        let(:job) { FactoryGirl.create :job, :basic, inputs: [Input.new] }
+        let(:job) { FactoryGirl.create :job, :basic, inputs: [Input.new(local: '')] }
         let(:pattern) { /missing job\.input.local/i }
       end
     end

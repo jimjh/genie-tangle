@@ -29,6 +29,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'thor',          '~> 0.16.0'
   gem.add_dependency 'activesupport', '~> 3.2.9'
   gem.add_dependency 'pry',           '~> 0.9.11'
+  gem.add_dependency 'bunny',         '0.9.0.pre6'
 
   gem.add_development_dependency 'yard'
   gem.add_development_dependency 'redcarpet'

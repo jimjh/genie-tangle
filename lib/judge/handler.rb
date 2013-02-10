@@ -1,5 +1,6 @@
 # ~*~ encoding: utf-8 ~*~
 require 'judge/traceable'
+require 'bunny'
 
 module Judge
 
@@ -8,10 +9,12 @@ module Judge
 
     include Traceable
 
-    attr_accessor :started
+    attr_reader :started
 
     def initialize
       @started = Time.now # keep track of start time
+      @serializer = Thrift::Serializer.new
+      bunny_up!
     end
 
     # @return [String] 'pong!'
@@ -23,23 +26,29 @@ module Judge
     # @return [JudgeInfo] basic information about Judge
     def info
       log_invocation
-      JudgeInfo.new \
-        uptime:  uptime,
-        threads: threads
+      JudgeInfo.new uptime: uptime, threads: threads
     end
 
     # Validates and adds a job to the job queue.
     # @param  [JudgeJob] job
     # @return [Status]
+    # @todo FIXME I think the broker silently drops the message on failure
     def add_job(job)
       log_invocation
-      validate_job job
-      # (status == Status::SUCCESS) ? job_queue.add(job) : status
-      # TODO: add to job queue
-      # TODO: add to deadjobs?
+      status = validate_job job
+      if StatusCode::SUCCESS == status.code
+        exchange.publish(serializer.serialize(job), RABBIT_JOBS.message[:opts].dup)
+        Judge.logger.info { 'add_job: Added %s to %s.' % [job.name, RABBIT_JOBS.message[:opts][:routing_key]] }
+      end
+      status
+    rescue => e # for some reason thrift doesn't log errors
+      Judge.logger.error 'add_job: ' + e.message
+      raise e
     end
 
     private
+
+    attr_reader :serializer
 
     # Validates fields in submitted job.
     # @return [Status]
@@ -123,8 +132,32 @@ module Judge
     # Logs the caller of this method.
     def log_invocation
       if Judge.logger.debug?
-        Judge.logger.debug 'Received RPC call: ' + caller[0][/`([^']*)'/, 1]
+        Judge.logger.debug 'rpc -> ' + caller[0][/`([^']*)'/, 1]
       end
+    end
+
+    # @see http://www.rabbitmq.com/tutorials/amqp-concepts.html
+    def channel
+      # don't share channels across threads
+      Thread.current[:rabbit_channel] ||= @bunny.create_channel
+    end
+
+    # @see http://www.rabbitmq.com/tutorials/amqp-concepts.html
+    def exchange
+      Thread.current[:rabbit_default_exchange] ||= channel.default_exchange
+    end
+
+    # Setup bunny connection, queue, and exchange.
+    def bunny_up!
+      Judge.logger.info 'Connecting to RabbitMq ...'
+      @bunny   = Bunny.new BUNNY_OPTS
+      @bunny.start # open TCP connection
+      channel.queue RABBIT_JOBS.queue[:name], RABBIT_JOBS.queue[:opts]
+    rescue Bunny::TCPConnectionFailed
+      raise Judge::Abort, 'Unable to connect to RabbitMq. The given options were: ' +
+        RABBIT_JOBS.queue[:opts].inspect
+    rescue Bunny::PossibleAuthenticationFailureError
+      raise Judge::Abort, "Could not authenticate as #{@bunny.username}."
     end
 
   end

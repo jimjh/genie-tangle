@@ -35,9 +35,9 @@ describe Judge::Server do
 
     context 'running server' do
 
-      subject       { server }
-      before(:all)  { server.serve }
-      after(:all)   { server.thread.exit }
+      subject        { server }
+      before(:each)  { server.serve }
+      after(:each)   { server.thread.exit }
 
       its(:thread) { should be_alive }
       its(:thread) { should be_kind_of(Thread) }

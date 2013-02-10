@@ -1,13 +1,15 @@
 # ~*~ encoding: utf-8 ~*~
+require 'judge'
 require 'rspec/core/shared_context'
 require 'factory_girl'
+
 module Test
 
   module GlobalContext
 
-    FactoryGirl.find_definitions
-
     extend RSpec::Core::SharedContext
+
+    FactoryGirl.find_definitions
     let(:output) { OUTPUT.flush; OUTPUT.string }
     let(:rand)   { Random.rand(100) }
 

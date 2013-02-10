@@ -17,7 +17,7 @@ module Test
 end
 
 $:.unshift Test::ROOT + '..' + 'lib'
-require 'judge'
+require 'shared/bunny_context'
 require 'shared/global_context'
 
 RSpec.configure do |config|
@@ -27,6 +27,7 @@ RSpec.configure do |config|
   config.filter_run :focus
 
   config.mock_framework = :mocha
+  config.include Test::BunnyContext
   config.include Test::GlobalContext
 
   config.before(:suite) { Judge.reset_logger 'log-file' => Test::OUTPUT }
