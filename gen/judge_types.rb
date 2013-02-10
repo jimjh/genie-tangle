@@ -6,6 +6,92 @@
 
 require 'thrift'
 
+module StatusCode
+  SUCCESS = 0
+  FAILURE = 1
+  VALUE_MAP = {0 => "SUCCESS", 1 => "FAILURE"}
+  VALID_VALUES = Set.new([SUCCESS, FAILURE]).freeze
+end
+
+class Input
+  include ::Thrift::Struct, ::Thrift::Struct_Union
+  LOCAL = 1
+  DEST = 2
+
+  FIELDS = {
+    LOCAL => {:type => ::Thrift::Types::STRING, :name => 'local'},
+    DEST => {:type => ::Thrift::Types::STRING, :name => 'dest', :optional => true}
+  }
+
+  def struct_fields; FIELDS; end
+
+  def validate
+    raise ::Thrift::ProtocolException.new(::Thrift::ProtocolException::UNKNOWN, 'Required field local is unset!') unless @local
+  end
+
+  ::Thrift::Struct.generate_accessors self
+end
+
+class Status
+  include ::Thrift::Struct, ::Thrift::Struct_Union
+  CODE = 1
+  TRACE = 2
+
+  FIELDS = {
+    CODE => {:type => ::Thrift::Types::I32, :name => 'code', :enum_class => ::StatusCode},
+    TRACE => {:type => ::Thrift::Types::LIST, :name => 'trace', :element => {:type => ::Thrift::Types::STRING}}
+  }
+
+  def struct_fields; FIELDS; end
+
+  def validate
+    unless @code.nil? || ::StatusCode::VALID_VALUES.include?(@code)
+      raise ::Thrift::ProtocolException.new(::Thrift::ProtocolException::UNKNOWN, 'Invalid value of field code!')
+    end
+  end
+
+  ::Thrift::Struct.generate_accessors self
+end
+
+class JudgeJob
+  include ::Thrift::Struct, ::Thrift::Struct_Union
+  ID = 1
+  ASSIGNED = 2
+  RETRIES = 3
+  NAME = 6
+  PARAMS = 7
+  TRACE = 8
+  ERRORS = 9
+  TIMEOUT = 10
+  INPUTS = 11
+  OUTPUT = 12
+  FSIZE = 13
+
+  FIELDS = {
+    ID => {:type => ::Thrift::Types::I32, :name => 'id', :optional => true},
+    ASSIGNED => {:type => ::Thrift::Types::I32, :name => 'assigned', :optional => true},
+    RETRIES => {:type => ::Thrift::Types::I32, :name => 'retries', :optional => true},
+    NAME => {:type => ::Thrift::Types::STRING, :name => 'name'},
+    PARAMS => {:type => ::Thrift::Types::MAP, :name => 'params', :key => {:type => ::Thrift::Types::STRING}, :value => {:type => ::Thrift::Types::STRING}, :optional => true},
+    TRACE => {:type => ::Thrift::Types::LIST, :name => 'trace', :element => {:type => ::Thrift::Types::STRING}, :optional => true},
+    ERRORS => {:type => ::Thrift::Types::I32, :name => 'errors', :optional => true},
+    TIMEOUT => {:type => ::Thrift::Types::I32, :name => 'timeout', :optional => true},
+    INPUTS => {:type => ::Thrift::Types::LIST, :name => 'inputs', :element => {:type => ::Thrift::Types::STRUCT, :class => ::Input}},
+    OUTPUT => {:type => ::Thrift::Types::STRING, :name => 'output'},
+    FSIZE => {:type => ::Thrift::Types::I32, :name => 'fsize', :optional => true}
+  }
+
+  def struct_fields; FIELDS; end
+
+  def validate
+    raise ::Thrift::ProtocolException.new(::Thrift::ProtocolException::UNKNOWN, 'Required field name is unset!') unless @name
+    raise ::Thrift::ProtocolException.new(::Thrift::ProtocolException::UNKNOWN, 'Required field inputs is unset!') unless @inputs
+    raise ::Thrift::ProtocolException.new(::Thrift::ProtocolException::UNKNOWN, 'Required field output is unset!') unless @output
+  end
+
+  ::Thrift::Struct.generate_accessors self
+end
+
 class JudgeInfo
   include ::Thrift::Struct, ::Thrift::Struct_Union
   UPTIME = 1

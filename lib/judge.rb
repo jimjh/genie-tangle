@@ -18,13 +18,16 @@ module Judge
 
     attr_accessor :logger
 
+    # @option opts [String] log-file  ({Judge::LOG_FILE})
+    # @option opts [String] log-level ({Judge::LOG_LEVEL})
     def reset_logger(opts={})
       @logger = Logger.new(opts['log-file'] || LOG_FILE)
       @logger.level     = opts['log-level'] || LOG_LEVEL
       @logger.formatter = Logger::Formatter.new
     end
 
-    # Starts a RPC server.
+    # Starts a RPC server. See {Judge::Server} for options.
+    # @return [void]
     def server(opts={})
       reset_logger opts
       Server.new(opts).serve.value
@@ -33,7 +36,10 @@ module Judge
     end
 
     # Starts a client and invokes the given command. If a command is not
-    # provided, starts a pry console.
+    # provided, starts a pry console. See {Judge::Client} for options.
+    # @param [String] cmd       RPC command to invoke
+    # @param [Array]  argv      parameters for command
+    # @return [void]
     def client(cmd=nil, argv=[], opts={})
       reset_logger opts
       client = Client.new(opts)

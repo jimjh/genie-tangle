@@ -41,6 +41,21 @@ module Judge
       raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'info failed: unknown result')
     end
 
+    def add_job(job)
+      send_add_job(job)
+      return recv_add_job()
+    end
+
+    def send_add_job(job)
+      send_message('add_job', Add_job_args, :job => job)
+    end
+
+    def recv_add_job()
+      result = receive_message(Add_job_result)
+      return result.success unless result.success.nil?
+      raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'add_job failed: unknown result')
+    end
+
   end
 
   class Processor
@@ -58,6 +73,13 @@ module Judge
       result = Info_result.new()
       result.success = @handler.info()
       write_result(result, oprot, 'info', seqid)
+    end
+
+    def process_add_job(seqid, iprot, oprot)
+      args = read_args(iprot, Add_job_args)
+      result = Add_job_result.new()
+      result.success = @handler.add_job(args.job)
+      write_result(result, oprot, 'add_job', seqid)
     end
 
   end
@@ -116,6 +138,38 @@ module Judge
 
     FIELDS = {
       SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => ::JudgeInfo}
+    }
+
+    def struct_fields; FIELDS; end
+
+    def validate
+    end
+
+    ::Thrift::Struct.generate_accessors self
+  end
+
+  class Add_job_args
+    include ::Thrift::Struct, ::Thrift::Struct_Union
+    JOB = 1
+
+    FIELDS = {
+      JOB => {:type => ::Thrift::Types::STRUCT, :name => 'job', :class => ::JudgeJob}
+    }
+
+    def struct_fields; FIELDS; end
+
+    def validate
+    end
+
+    ::Thrift::Struct.generate_accessors self
+  end
+
+  class Add_job_result
+    include ::Thrift::Struct, ::Thrift::Struct_Union
+    SUCCESS = 0
+
+    FIELDS = {
+      SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => ::Status}
     }
 
     def struct_fields; FIELDS; end
