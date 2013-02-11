@@ -55,21 +55,19 @@ end
 
 class JudgeJob
   include ::Thrift::Struct, ::Thrift::Struct_Union
-  ID = 1
-  ASSIGNED = 2
-  RETRIES = 3
-  NAME = 6
-  PARAMS = 7
-  TRACE = 8
-  ERRORS = 9
-  TIMEOUT = 10
-  INPUTS = 11
-  OUTPUT = 12
-  FSIZE = 13
+  ASSIGNED = 1
+  RETRIES = 2
+  NAME = 3
+  PARAMS = 4
+  TRACE = 5
+  ERRORS = 6
+  TIMEOUT = 7
+  INPUTS = 8
+  OUTPUT = 9
+  FSIZE = 10
 
   FIELDS = {
-    ID => {:type => ::Thrift::Types::I32, :name => 'id', :optional => true},
-    ASSIGNED => {:type => ::Thrift::Types::I32, :name => 'assigned', :optional => true},
+    ASSIGNED => {:type => ::Thrift::Types::BOOL, :name => 'assigned', :optional => true},
     RETRIES => {:type => ::Thrift::Types::I32, :name => 'retries', :optional => true},
     NAME => {:type => ::Thrift::Types::STRING, :name => 'name'},
     PARAMS => {:type => ::Thrift::Types::MAP, :name => 'params', :key => {:type => ::Thrift::Types::STRING}, :value => {:type => ::Thrift::Types::STRING}, :optional => true},

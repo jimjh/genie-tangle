@@ -14,6 +14,7 @@ module Test
       channel = stub_everything(queue: amq_queue, default_exchange: amq_exchange)
       conn    = stub_everything('bunny', start: true, create_channel: channel)
       Bunny.stubs(:new).returns(conn)
+      Judge.bunny = conn
     end
 
   end

@@ -1,20 +1,22 @@
 # ~*~ encoding: utf-8 ~*~
-require 'judge/traceable'
-require 'bunny'
+require 'judge/support/traceable'
+require 'judge/support/bunniable'
 
 module Judge
 
-  # Provides implementation for the RPC interface.
+  # Provides implementation for the RPC interface. Refer to `judge.thrift` for
+  # details.
   class Handler
 
-    include Traceable
+    include Support::Traceable
+    include Support::Bunniable
 
     attr_reader :started
 
     def initialize
       @started = Time.now # keep track of start time
       @serializer = Thrift::Serializer.new
-      bunny_up!
+      channel.queue RABBIT_JOBS.queue[:name], RABBIT_JOBS.queue[:opts]
     end
 
     # @return [String] 'pong!'
@@ -31,14 +33,20 @@ module Judge
 
     # Validates and adds a job to the job queue.
     # @param  [JudgeJob] job
-    # @return [Status]
+    # @return [Status] success if job is valid, and failure (with trace)
+    #   otherwise.
     # @todo FIXME I think the broker silently drops the message on failure
-    def add_job(job)
+    def add_job(job, reply_to, identifier)
       log_invocation
       status = validate_job job
       if StatusCode::SUCCESS == status.code
-        exchange.publish(serializer.serialize(job), RABBIT_JOBS.message[:opts].dup)
-        Judge.logger.info { 'add_job: Added %s to %s.' % [job.name, RABBIT_JOBS.message[:opts][:routing_key]] }
+        opts = RABBIT_JOBS.message[:opts].merge({
+          timestamp: Time.now.to_i,
+          reply_to:  reply_to,
+          message_id: identifier
+        })
+        exchange.publish serializer.serialize(job), opts
+        Judge.logger.info { 'add_job --[%s]--> %s' % [identifier, RABBIT_JOBS.queue[:name]] }
       end
       status
     rescue => e # for some reason thrift doesn't log errors
@@ -134,30 +142,6 @@ module Judge
       if Judge.logger.debug?
         Judge.logger.debug 'rpc -> ' + caller[0][/`([^']*)'/, 1]
       end
-    end
-
-    # @see http://www.rabbitmq.com/tutorials/amqp-concepts.html
-    def channel
-      # don't share channels across threads
-      Thread.current[:rabbit_channel] ||= @bunny.create_channel
-    end
-
-    # @see http://www.rabbitmq.com/tutorials/amqp-concepts.html
-    def exchange
-      Thread.current[:rabbit_default_exchange] ||= channel.default_exchange
-    end
-
-    # Setup bunny connection, queue, and exchange.
-    def bunny_up!
-      Judge.logger.info 'Connecting to RabbitMq ...'
-      @bunny   = Bunny.new BUNNY_OPTS
-      @bunny.start # open TCP connection
-      channel.queue RABBIT_JOBS.queue[:name], RABBIT_JOBS.queue[:opts]
-    rescue Bunny::TCPConnectionFailed
-      raise Judge::Abort, 'Unable to connect to RabbitMq. The given options were: ' +
-        RABBIT_JOBS.queue[:opts].inspect
-    rescue Bunny::PossibleAuthenticationFailureError
-      raise Judge::Abort, "Could not authenticate as #{@bunny.username}."
     end
 
   end

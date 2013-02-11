@@ -39,6 +39,7 @@ module Judge
     # ssl:  false,
     # user: 'guest',
     # pass: 'guest'
+    logging: true
   }.deep_freeze
 
   # Configuration options related to the jobs queue.

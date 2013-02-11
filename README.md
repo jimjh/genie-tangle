@@ -6,6 +6,9 @@ Judge consists of the following components:
 
 1. Judge Server: a Thrift RPC server. Validates job requests and places them on
 a queue.
+1. Job Manager: a thread that runs continously, removing jobs from the jobs
+queue, assigning them to VMs and creating new workers. When a job is completed,
+it places a response on the callback queue specified in the job request.
 
 ## Usage
 To get a list of all commands and their options, use

@@ -21,17 +21,16 @@ struct Status {
 }
 
 struct JudgeJob {
-  1: optional i32         id,              # client-specific ID
-  2: optional i32         assigned,        # ID of assigned VM
-  3: optional i32         retries,         # number of retries
-  6: required string      name,            # name for the debug logs
-  7: optional map<string, string> params,  # variable arguments for driver
-  8: optional list<string>        trace,   # debug trace
-  9: optional i32         errors,          # number of errors
- 10: optional i32         timeout,         # timeout in seconds, for job execution
- 11: required list<Input> inputs,          # list of input files
- 12: required string      output,          # path to output file
- 13: optional i32         fsize            # maximum output file size, in bytes
+  1: optional bool        assigned,        # true if job has been assigned
+  2: optional i32         retries,         # number of retries
+  3: required string      name,            # name for the debug logs
+  4: optional map<string, string> params,  # variable arguments for driver
+  5: optional list<string>        trace,   # debug trace
+  6: optional i32         errors,          # number of errors
+  7: optional i32         timeout,         # timeout in seconds, for job execution
+  8: required list<Input> inputs,          # list of input files
+  9: required string      output,          # path to output file
+ 10: optional i32         fsize            # maximum output file size, in bytes
 }
 
 struct JudgeInfo {
@@ -42,5 +41,5 @@ struct JudgeInfo {
 service Judge {
   string ping()
   JudgeInfo info()
-  Status add_job(1: JudgeJob job)
+  Status add_job(1: JudgeJob job, 2: string reply_to, 3: string identifier)
 }

@@ -38,15 +38,15 @@ describe Judge::Client do
       before(:each) { @job = FactoryGirl.create :job, :basic }
       it 'passes all validations' do
         amq_exchange.expects(:publish)
-          .with(instance_of(String), Judge::RABBIT_JOBS.message[:opts])
+          .with(instance_of(String), has_entries(Judge::RABBIT_JOBS.message[:opts]))
           .once
-        subject.add_job(@job).code.should be(StatusCode::SUCCESS)
+        subject.add_job(@job, 'x', 'y').code.should be(StatusCode::SUCCESS)
       end
     end
 
     shared_examples 'a bad job' do
       it 'fails a validation' do
-        status = subject.add_job(job)
+        status = subject.add_job(job, 'x', 'y')
         status.code.should be(StatusCode::FAILURE)
         status.trace.grep(pattern).length.should be 1
       end
