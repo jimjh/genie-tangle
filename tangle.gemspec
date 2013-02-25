@@ -32,7 +32,7 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'yard'
   gem.add_development_dependency 'redcarpet'
-  gem.add_development_dependency 'debugger-pry', '~> 0.1.1'
+  gem.add_development_dependency 'ruby-debug'
   gem.add_development_dependency 'rspec',        '~> 2.12.0'
   gem.add_development_dependency 'rake',         '~> 10.0.0'
   gem.add_development_dependency 'mocha',        '~> 0.10.5'
