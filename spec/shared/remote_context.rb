@@ -2,7 +2,7 @@
 shared_context 'remote rpc' do
 
   before(:each) do
-    @server = Judge::Server.new
+    @server = Tangle::Server.new
     @thread = @server.serve
   end
 

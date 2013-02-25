@@ -1,5 +1,5 @@
 # ~*~ encoding: utf-8 ~*~
-module Judge
+module Tangle
 
   # Contains, configures, and controls the Thrift RPC client.
   #
@@ -29,7 +29,7 @@ module Judge
       @transport.open
       instance_eval(&block)
     rescue => e
-      Judge.logger.error e.message
+      Tangle.logger.error e.message
     ensure
       @transport.close
     end

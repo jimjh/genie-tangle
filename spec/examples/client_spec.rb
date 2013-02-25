@@ -2,14 +2,14 @@
 require 'shared/remote_context'
 require 'securerandom'
 
-describe Judge do
+describe Tangle do
 
   include_context 'remote rpc'
 
   describe '::client' do
 
     it 'invokes the given command via the client' do
-      Judge.client 'ping', nil, 'port' => port
+      Tangle.client 'ping', nil, 'port' => port
       output.should match(/pong!/)
     end
 
@@ -17,28 +17,28 @@ describe Judge do
 
 end
 
-describe Judge::Client do
+describe Tangle::Client do
 
   include_context 'remote rpc'
 
   let(:rand_string) { SecureRandom.uuid }
-  subject { Judge::Client.new 'port' => port }
+  subject { Tangle::Client.new 'port' => port }
 
   describe '#initialize' do
 
     it 'sets host, port' do
-      c = Judge::Client.new('host' => rand_string, 'port' => rand)
+      c = Tangle::Client.new('host' => rand_string, 'port' => rand)
       c.host.should eq rand_string
       c.port.should eq rand
     end
 
     it 'sets host to default value' do
-      c = Judge::Client.new('port' => rand)
+      c = Tangle::Client.new('port' => rand)
       c.host.should eq '::1'
     end
 
     it 'raises an exception if a port is not given' do
-      expect { Judge::Client.new }.to raise_exception(ArgumentError)
+      expect { Tangle::Client.new }.to raise_exception(ArgumentError)
     end
 
   end

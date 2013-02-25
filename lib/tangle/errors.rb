@@ -1,4 +1,4 @@
 # ~*~ encoding: utf-8 ~*~
-module Judge
+module Tangle
   class Abort < StandardError; end
 end

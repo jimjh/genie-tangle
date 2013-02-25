@@ -5,9 +5,9 @@
 #
 
 require 'thrift'
-require 'judge_types'
+require 'tangle_types'
 
-module Judge
+module Tangle
   class Client
     include ::Thrift::Client
 
@@ -41,21 +41,6 @@ module Judge
       raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'info failed: unknown result')
     end
 
-    def add_job(job, reply_to, identifier)
-      send_add_job(job, reply_to, identifier)
-      return recv_add_job()
-    end
-
-    def send_add_job(job, reply_to, identifier)
-      send_message('add_job', Add_job_args, :job => job, :reply_to => reply_to, :identifier => identifier)
-    end
-
-    def recv_add_job()
-      result = receive_message(Add_job_result)
-      return result.success unless result.success.nil?
-      raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'add_job failed: unknown result')
-    end
-
   end
 
   class Processor
@@ -73,13 +58,6 @@ module Judge
       result = Info_result.new()
       result.success = @handler.info()
       write_result(result, oprot, 'info', seqid)
-    end
-
-    def process_add_job(seqid, iprot, oprot)
-      args = read_args(iprot, Add_job_args)
-      result = Add_job_result.new()
-      result.success = @handler.add_job(args.job, args.reply_to, args.identifier)
-      write_result(result, oprot, 'add_job', seqid)
     end
 
   end
@@ -137,43 +115,7 @@ module Judge
     SUCCESS = 0
 
     FIELDS = {
-      SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => ::JudgeInfo}
-    }
-
-    def struct_fields; FIELDS; end
-
-    def validate
-    end
-
-    ::Thrift::Struct.generate_accessors self
-  end
-
-  class Add_job_args
-    include ::Thrift::Struct, ::Thrift::Struct_Union
-    JOB = 1
-    REPLY_TO = 2
-    IDENTIFIER = 3
-
-    FIELDS = {
-      JOB => {:type => ::Thrift::Types::STRUCT, :name => 'job', :class => ::JudgeJob},
-      REPLY_TO => {:type => ::Thrift::Types::STRING, :name => 'reply_to'},
-      IDENTIFIER => {:type => ::Thrift::Types::STRING, :name => 'identifier'}
-    }
-
-    def struct_fields; FIELDS; end
-
-    def validate
-    end
-
-    ::Thrift::Struct.generate_accessors self
-  end
-
-  class Add_job_result
-    include ::Thrift::Struct, ::Thrift::Struct_Union
-    SUCCESS = 0
-
-    FIELDS = {
-      SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => ::Status}
+      SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => ::TangleInfo}
     }
 
     def struct_fields; FIELDS; end

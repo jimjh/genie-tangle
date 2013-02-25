@@ -2,5 +2,5 @@
 # ~*~ encoding: utf-8 ~*~
 
 $:.unshift File.join File.dirname(__FILE__), *%w[.. lib]
-require 'judge/cli'
-Judge::Cli.start(ARGV)
+require 'tangle/cli'
+Tangle::Cli.start(ARGV)

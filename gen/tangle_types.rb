@@ -53,44 +53,7 @@ class Status
   ::Thrift::Struct.generate_accessors self
 end
 
-class JudgeJob
-  include ::Thrift::Struct, ::Thrift::Struct_Union
-  ASSIGNED = 1
-  RETRIES = 2
-  NAME = 3
-  PARAMS = 4
-  TRACE = 5
-  ERRORS = 6
-  TIMEOUT = 7
-  INPUTS = 8
-  OUTPUT = 9
-  FSIZE = 10
-
-  FIELDS = {
-    ASSIGNED => {:type => ::Thrift::Types::BOOL, :name => 'assigned', :optional => true},
-    RETRIES => {:type => ::Thrift::Types::I32, :name => 'retries', :optional => true},
-    NAME => {:type => ::Thrift::Types::STRING, :name => 'name'},
-    PARAMS => {:type => ::Thrift::Types::MAP, :name => 'params', :key => {:type => ::Thrift::Types::STRING}, :value => {:type => ::Thrift::Types::STRING}, :optional => true},
-    TRACE => {:type => ::Thrift::Types::LIST, :name => 'trace', :element => {:type => ::Thrift::Types::STRING}, :optional => true},
-    ERRORS => {:type => ::Thrift::Types::I32, :name => 'errors', :optional => true},
-    TIMEOUT => {:type => ::Thrift::Types::I32, :name => 'timeout', :optional => true},
-    INPUTS => {:type => ::Thrift::Types::LIST, :name => 'inputs', :element => {:type => ::Thrift::Types::STRUCT, :class => ::Input}},
-    OUTPUT => {:type => ::Thrift::Types::STRING, :name => 'output'},
-    FSIZE => {:type => ::Thrift::Types::I32, :name => 'fsize', :optional => true}
-  }
-
-  def struct_fields; FIELDS; end
-
-  def validate
-    raise ::Thrift::ProtocolException.new(::Thrift::ProtocolException::UNKNOWN, 'Required field name is unset!') unless @name
-    raise ::Thrift::ProtocolException.new(::Thrift::ProtocolException::UNKNOWN, 'Required field inputs is unset!') unless @inputs
-    raise ::Thrift::ProtocolException.new(::Thrift::ProtocolException::UNKNOWN, 'Required field output is unset!') unless @output
-  end
-
-  ::Thrift::Struct.generate_accessors self
-end
-
-class JudgeInfo
+class TangleInfo
   include ::Thrift::Struct, ::Thrift::Struct_Union
   UPTIME = 1
   THREADS = 2

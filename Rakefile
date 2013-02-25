@@ -15,8 +15,8 @@ task :release do
 end
 
 namespace :thrift do
-  desc 'Generates ruby scripts from judge.thrift'
+  desc 'Generates ruby scripts from tangle.thrift'
   task :generate do
-    system './judge.thrift'
+    system './tangle.thrift'
   end
 end

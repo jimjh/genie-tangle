@@ -1,20 +1,20 @@
 # ~*~ encoding: utf-8 ~*~
-require './lib/judge/version'
+require './lib/tangle/version'
 
 Gem::Specification.new do |gem|
 
   # NAME
-  gem.name          = 'judge'
-  gem.version       = Judge::VERSION
+  gem.name          = 'tangle'
+  gem.version       = Tangle::VERSION
   gem.platform      = Gem::Platform::RUBY
   gem.required_ruby_version = '>= 1.9.2'
 
   # LICENSES
   gem.authors       = ['Jiunn Haur Lim']
   gem.email         = ['codex.is.poetry@gmail.com']
-  gem.description   = %q{Judges submissions.}
-  gem.summary       = %q{Judges submissions.}
-  gem.homepage      = 'https://github.com/jimjh/genie-judge'
+  gem.description   = %q{Untangles VM management and SSH connections}
+  gem.summary       = %q{Untangles VM management and SSH connections}
+  gem.homepage      = 'https://github.com/jimjh/genie-tangle'
 
   # PATHS
   gem.require_paths = %w[lib]
@@ -29,7 +29,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'thor',          '~> 0.16.0'
   gem.add_dependency 'activesupport', '~> 3.2.9'
   gem.add_dependency 'pry',           '~> 0.9.11'
-  gem.add_dependency 'bunny',         '0.9.0.pre6'
 
   gem.add_development_dependency 'yard'
   gem.add_development_dependency 'redcarpet'

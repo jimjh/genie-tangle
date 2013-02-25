@@ -1,5 +1,5 @@
 # ~*~ encoding: utf-8 ~*~
-require 'judge'
+require 'tangle'
 require 'rspec/core/shared_context'
 require 'factory_girl'
 

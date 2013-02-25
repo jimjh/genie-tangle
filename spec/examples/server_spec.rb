@@ -1,37 +1,37 @@
 # ~*~ encoding: utf-8 ~*~
 require 'spec_helper'
 
-describe Judge do
+describe Tangle do
 
   describe '::server' do
 
     it 'rescues from Interrupt' do
-      Judge::Server.any_instance.expects(:serve).raises(Interrupt)
-      expect { Judge.server }.to_not raise_exception
-      output.should match(/Court adjourned./)
+      Tangle::Server.any_instance.expects(:serve).raises(Interrupt)
+      expect { Tangle.server }.to_not raise_exception
+      output.should match(/Untangled\./)
     end
 
   end
 
 end
 
-describe Judge::Server do
+describe Tangle::Server do
 
   describe '#initialize' do
 
     it 'sets the port number' do
-      Judge::Server.new('port' => rand).port.should be(rand)
+      Tangle::Server.new('port' => rand).port.should be(rand)
     end
 
     it 'sets the port number to default value' do
-      Judge::Server.new.port.should be_zero
+      Tangle::Server.new.port.should be_zero
     end
 
   end
 
   describe '#serve' do
 
-    let(:server) { Judge::Server.new }
+    let(:server) { Tangle::Server.new }
 
     context 'running server' do
 

@@ -5,5 +5,5 @@
 #
 
 require 'thrift'
-require 'judge_types'
+require 'tangle_types'
 
