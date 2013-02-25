@@ -5,27 +5,20 @@
 # generate the ruby files.
 # Jim Lim <jiunnhal@cmu.edu>
 
-struct Input {
-  1: required string local,      # path to local file
-  2: optional string dest        # path to destination file
-}
-
-enum StatusCode {
-  SUCCESS,
-  FAILURE
-}
-
-struct Status {
-  1: StatusCode   code,
-  2: list<string> trace
-}
-
+# server information
 struct TangleInfo {
   1: double           uptime,     # in seconds
   2: map<string, i32> threads     # { 'total' => xx, 'running' => xx }
 }
 
+exception SSHException {
+  1: string message
+}
+
 service Tangle {
-  string ping()
-  TangleInfo info()
+  string      ping()
+  TangleInfo  info()
+  string      ssh(1: string user_id,
+                  2: string vm_class,
+                  3: string output) throws (1: SSHException e)
 }

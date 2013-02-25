@@ -27,6 +27,21 @@ module Tangle
       TangleInfo.new uptime: uptime, threads: threads
     end
 
+    # Creates a new SSH channel.
+    #
+    # If a SSH connection to a VM of the requested VM class for the given user
+    # already exists, a new channel is created on the connection. Otherwise, a
+    # new connection is opened. Output from the channel are sent on the output
+    # channel.
+    #
+    # @param  [String] user_id
+    # @param  [String] vm_class
+    # @param  [String] output
+    # @return [String] path to input pipe
+    def ssh(user_id, vm_class, output)
+      # TODO
+    end
+
     private
 
     # @return [Hash] number of threads (+'total'+ and +'running'+)

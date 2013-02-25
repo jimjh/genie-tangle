@@ -6,53 +6,6 @@
 
 require 'thrift'
 
-module StatusCode
-  SUCCESS = 0
-  FAILURE = 1
-  VALUE_MAP = {0 => "SUCCESS", 1 => "FAILURE"}
-  VALID_VALUES = Set.new([SUCCESS, FAILURE]).freeze
-end
-
-class Input
-  include ::Thrift::Struct, ::Thrift::Struct_Union
-  LOCAL = 1
-  DEST = 2
-
-  FIELDS = {
-    LOCAL => {:type => ::Thrift::Types::STRING, :name => 'local'},
-    DEST => {:type => ::Thrift::Types::STRING, :name => 'dest', :optional => true}
-  }
-
-  def struct_fields; FIELDS; end
-
-  def validate
-    raise ::Thrift::ProtocolException.new(::Thrift::ProtocolException::UNKNOWN, 'Required field local is unset!') unless @local
-  end
-
-  ::Thrift::Struct.generate_accessors self
-end
-
-class Status
-  include ::Thrift::Struct, ::Thrift::Struct_Union
-  CODE = 1
-  TRACE = 2
-
-  FIELDS = {
-    CODE => {:type => ::Thrift::Types::I32, :name => 'code', :enum_class => ::StatusCode},
-    TRACE => {:type => ::Thrift::Types::LIST, :name => 'trace', :element => {:type => ::Thrift::Types::STRING}}
-  }
-
-  def struct_fields; FIELDS; end
-
-  def validate
-    unless @code.nil? || ::StatusCode::VALID_VALUES.include?(@code)
-      raise ::Thrift::ProtocolException.new(::Thrift::ProtocolException::UNKNOWN, 'Invalid value of field code!')
-    end
-  end
-
-  ::Thrift::Struct.generate_accessors self
-end
-
 class TangleInfo
   include ::Thrift::Struct, ::Thrift::Struct_Union
   UPTIME = 1
@@ -61,6 +14,27 @@ class TangleInfo
   FIELDS = {
     UPTIME => {:type => ::Thrift::Types::DOUBLE, :name => 'uptime'},
     THREADS => {:type => ::Thrift::Types::MAP, :name => 'threads', :key => {:type => ::Thrift::Types::STRING}, :value => {:type => ::Thrift::Types::I32}}
+  }
+
+  def struct_fields; FIELDS; end
+
+  def validate
+  end
+
+  ::Thrift::Struct.generate_accessors self
+end
+
+class SSHException < ::Thrift::Exception
+  include ::Thrift::Struct, ::Thrift::Struct_Union
+  def initialize(message=nil)
+    super()
+    self.message = message
+  end
+
+  MESSAGE = 1
+
+  FIELDS = {
+    MESSAGE => {:type => ::Thrift::Types::STRING, :name => 'message'}
   }
 
   def struct_fields; FIELDS; end
