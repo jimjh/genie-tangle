@@ -19,7 +19,7 @@ module Tangle
   PORT = 0
 
   # Host name. Set to '::1' for localhost.
-  HOST = '::1'
+  HOST = 'localhost'
 
   # == Job Options ==
 

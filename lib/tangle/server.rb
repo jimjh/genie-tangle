@@ -14,7 +14,7 @@ module Tangle
     def initialize(opts={})
       Tangle.logger.info 'Initializing Tangle server ...'
       @port     = opts['port'] || PORT
-      @socket   = Thrift::ServerSocket.new('::1', port)
+      @socket   = Thrift::ServerSocket.new('localhost', port)
       processor = Processor.new Handler.new
       factory   = Thrift::BufferedTransportFactory.new
       @server   = Thrift::ThreadPoolServer.new(processor, socket, factory)
