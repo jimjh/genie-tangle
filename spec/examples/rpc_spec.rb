@@ -1,16 +1,7 @@
 # ~*~ encoding: utf-8 ~*~
-require 'shared/remote_context'
+require 'spec_helper'
 
-describe Tangle::Client do
-
-  include_context 'remote rpc'
-
-  before :each do
-    @client = Tangle::Client.new 'port' => port
-    @client.transport.open
-  end
-  after(:each)  { @client.transport.close }
-  subject       { @client }
+describe Tangle::Handler do
 
   describe '#ping' do
     its(:ping) { should eq 'pong!' }
@@ -22,7 +13,7 @@ describe Tangle::Client do
     its(:info) { should respond_to :threads }
 
     it 'reports the uptime' do
-      subject.info.uptime.should > 0
+      subject.info.uptime.should >= 0
     end
 
     it 'reports the number of threads' do

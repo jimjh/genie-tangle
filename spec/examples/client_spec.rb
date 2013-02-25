@@ -1,17 +1,16 @@
 # ~*~ encoding: utf-8 ~*~
 require 'spec_helper'
-require 'shared/remote_context'
 require 'securerandom'
 
 describe Tangle do
 
-  include_context 'remote rpc'
-
   describe '::client' do
 
     it 'invokes the given command via the client' do
-      Tangle.client 'ping', nil, 'port' => port
-      output.should match(/pong!/)
+      Thrift::BufferedTransport.any_instance.expects(:open)
+      Thrift::BufferedTransport.any_instance.expects(:close)
+      Tangle::Client.any_instance.expects(:ping).once.returns('pong')
+      Tangle.client 'ping', nil, 'port' => 0
     end
 
   end
@@ -19,8 +18,6 @@ describe Tangle do
 end
 
 describe Tangle::Client do
-
-  include_context 'remote rpc'
 
   let(:rand_string) { SecureRandom.uuid }
   subject { Tangle::Client.new 'port' => port }
@@ -40,14 +37,6 @@ describe Tangle::Client do
 
     it 'raises an exception if a port is not given' do
       expect { Tangle::Client.new }.to raise_exception(ArgumentError)
-    end
-
-  end
-
-  describe '#__invoke__' do
-
-    it 'invokes the given block within an open transport' do
-      subject.invoke { ping }.should eq 'pong!'
     end
 
   end
