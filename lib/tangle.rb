@@ -9,6 +9,7 @@ gen = Pathname.new(__FILE__).dirname + '..' + 'gen'
 $:.push gen
 require gen + 'tangle'
 
+require 'tangle/version'
 require 'tangle/config'
 require 'tangle/errors'
 require 'tangle/server'
