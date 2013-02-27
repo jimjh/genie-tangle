@@ -32,7 +32,7 @@ describe Tangle::Client do
 
     it 'sets host to default value' do
       c = Tangle::Client.new('port' => rand)
-      c.host.should eq '::1'
+      c.host.should eq Tangle::HOST
     end
 
     it 'raises an exception if a port is not given' do

@@ -21,12 +21,4 @@ module Tangle
   # Host name. Set to '::1' for localhost.
   HOST = 'localhost'
 
-  # == Job Options ==
-
-  # Maximum number of seconds for function.
-  RUNJOB_TIMEOUT = 240
-
-  # Maximum size for output file, in bytes.
-  MAX_OUTPUT_FILE_SIZE = 1000 * 1024
-
 end

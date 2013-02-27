@@ -18,7 +18,7 @@ require 'tangle/client'
 module Tangle
   class << self
 
-    attr_accessor :logger
+    attr_reader :logger
 
     # @option opts [String] log-file  ({Tangle::LOG_FILE})
     # @option opts [String] log-level ({Tangle::LOG_LEVEL})
