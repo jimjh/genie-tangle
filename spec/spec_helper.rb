@@ -3,6 +3,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'tmpdir'
 require 'rspec'
+require 'stringio'
 
 begin Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
@@ -23,6 +24,9 @@ RSpec.configure do |config|
 
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.run_all_when_everything_filtered = true
+
+  config.order = 'random'
+  config.color = true
 
   config.mock_framework = :mocha
   config.include Test::GlobalContext

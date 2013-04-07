@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
 
   # PATHS
   gem.require_paths = %w[lib]
-  gem.files         = %w[LICENSE README.md] +
+  gem.files         = %w[README.md] +
                       Dir.glob('lib/**/*') +
                       Dir.glob('bin/**/*')
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
