@@ -38,8 +38,26 @@ module Tangle
     # @param  [String] vm_class
     # @param  [String] output
     # @return [String] path to input pipe
+    #
+    # @todo TODO use user_id, vm_class
+    # @todo TODO reuse
+    # @todo TODO should the hash table be persistent?
     def ssh(user_id, vm_class, output)
-      # TODO
+      Net::SSH.start 'beta.geniehub.org', 'passenger' do |ssh|
+        channel = ssh.open_channel do |ch|
+          ch.request_pty do |ch, success|
+            ch.exec "/usr/bin/vim" do |ch, success|
+              ch.send_data "ixkcd\033:w! wow.txt\n"
+              ch.send_data ":q\n"
+              ch.send_data "logout\n"
+            end
+          end
+          ch.on_data { |c, d| puts d }
+          ch.on_extended_data { |c, d| puts d }
+          ch.on_close { puts "Connection closed." }
+        end
+        ssh.loop { channel.active? }
+      end
     end
 
     private
