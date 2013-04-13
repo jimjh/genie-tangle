@@ -4,9 +4,6 @@ require 'tangle/support/core_ext/deep_freeze'
 
 module Tangle
 
-  # All of the configuration options below can be overridden from the
-  # command-line.
-
   # == Server Options ==
 
   # Log file.
