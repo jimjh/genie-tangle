@@ -30,21 +30,14 @@ class TTYExtension
 
   def handle_create(message)
     request, client = message['data'], message['clientId']
-    r, w, id = open_ssh # TODO: config
+    args, callback  = request['args'], request['callback']
+    r, w, id = open_ssh(*args) # TODO: config
     @terms[id] = { r: r, w: w, owner: client }
     @clients[client] ||= Set.new
     @clients[client] << id
-    cb = Proc.new do |data|
-      if :EOF_SENTINEL == data
-        $client.publish('/kill', id)
-      else
-        $client.publish('/data', { id: id, data: data })
-        r.pop(&cb)
-      end
-    end
-    r.pop(&cb)
-    reply callback: request['callback'],
-      args: { id: id, pty: id, process: 'bash' }
+    r.on_close { $client.publish('/kill', id) }
+    r.on_data  { |data| $client.publish('/data', { id: id, data: data }) }
+    reply callback: callback, args: { id: id, pty: id, process: 'bash' }
   end
 
   def handle_input(message)
@@ -65,8 +58,7 @@ class TTYExtension
 
   def kill(pty)
     return unless term = @terms.delete(pty)
-    term[:r] << :EOF_SENTINEL
-    term[:w] << :EOF_SENTINEL
+    term[:w].close
     if ptys = @clients[term[:owner]]
       ptys.delete(pty)
       @clients.delete(term[:owner]) if ptys.empty?

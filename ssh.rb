@@ -11,12 +11,42 @@ require 'pry'
 #     channel.send_data data
 #   end
 # end
+# EM::start_unix_domain_server('xkcd.sock', UNIXServerHandler)
+# do |h|
+#   h.channel = channel
+# end
 
 # FIXME
 $counter = 0
 
-def open_ssh
-  r, w = EM::Queue.new, EM::Queue.new
+class EM::CloseableQueue < EM::Queue
+
+  def close
+    self << :EOF_SENTINEL
+  end
+
+  def on_close(*a, &b)
+    @close_cb = EM::Callback(*a, &b)
+  end
+
+  def on_data(*a, &b)
+    cb    = EM::Callback(*a, &b)
+    proxy = Proc.new do |ele|
+      if :EOF_SENTINEL == ele
+        EM.schedule @close_cb if @close_cb
+      else
+        cb.call ele
+        pop(&proxy) # loop
+      end
+    end
+    pop(&proxy)
+  end
+
+end
+
+# @return [EM::CloseableQueue, EM::CloseableQueue, Fixnum] read, write, id
+def open_ssh(cols, rows)
+  r, w = EM::CloseableQueue.new, EM::CloseableQueue.new
   EM::Ssh.start 'beta.geniehub.org', 'codex' do |session|
     session.errback  { |err| $stderr.puts "#{err} (#{err.class})" }
     session.callback do |ssh|
@@ -26,25 +56,15 @@ def open_ssh
         ch.on_extended_data { |_, d| r << d }
         ch.on_close do
           puts '>> channel closed.'
-          r << :EOF_SENTINEL
-          w << :EOF_SENTINEL
+          r.close
         end
-        ch.request_pty do |ch, success|
+        cols ||= Net::SSH::Connection::Channel::VALID_PTY_OPTIONS[:chars_wide]
+        rows ||= Net::SSH::Connection::Channel::VALID_PTY_OPTIONS[:chars_high]
+        ch.request_pty(chars_wide: cols, chars_high: rows) do |ch, success|
           ch = ch.send_channel_request 'shell' do |sh, success|
             puts '>> shell opened.'
-            # EM::start_unix_domain_server('xkcd.sock', UNIXServerHandler)
-            # do |h|
-            #   h.channel = channel
-            # end
-            c = Proc.new do |data|
-              if :EOF_SENTINEL == data
-                channel.close
-              else
-                channel.send_data(data)
-                w.pop(&c)
-              end
-            end
-            w.pop(&c)
+            w.on_close { channel.close unless !channel.active? }
+            w.on_data  { |data| channel.send_data data }
           end
         end
       end
