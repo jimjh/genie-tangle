@@ -23,6 +23,7 @@ class TTYExtension
     when '/kill'   then handle_kill   message
     when '/meta/disconnect' then handle_disconnect message
     end
+  ensure
     callback.call(message)
   end
 
