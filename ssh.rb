@@ -1,45 +1,56 @@
-#! /usr/bin/env ruby
 # ~*~ encoding: utf-8 ~*~
-
-require 'net/ssh'
-require 'pry'
+require 'em-ssh'
 require 'socket'
 require 'thread'
+require 'pry'
 
-File.unlink 'xkcd.sock' if File.exists? 'xkcd.sock'
-$server = UNIXServer.new 'xkcd.sock'
-trap('EXIT') { puts 'Exiting...'; $server.close }
+# File.unlink 'xkcd.sock' if File.exists? 'xkcd.sock'
+# module UNIXServerHandler
+#   attr_accessor :channel
+#   def receive_data(data)
+#     channel.send_data data
+#   end
+# end
 
-# start separate thread for SSH
-#Thread.new do
-  Net::SSH.start 'beta.geniehub.org', 'passenger' do |session|
-    puts "Session started."
-    channel = session.open_channel do |ch|
-      puts "Channel opened."
-      ch.on_data { |c, d| puts d }
-      ch.on_extended_data { |c, d| puts d }
-      ch.on_close { puts "Connection closed." }
-      ch.request_pty do |ch, success|
-        ch = ch.send_channel_request 'shell' do |sh, success|
-          puts "Shell opened."
+# FIXME
+$counter = 0
+
+def open_ssh
+  r, w = EM::Queue.new, EM::Queue.new
+  EM::Ssh.start 'beta.geniehub.org', 'codex' do |session|
+    session.errback  { |err| $stderr.puts "#{err} (#{err.class})" }
+    session.callback do |ssh|
+      channel = ssh.open_channel do |ch|
+        puts '>> channel opened.'
+        ch.on_data { |_, d| r << d }
+        ch.on_extended_data { |_, d| r << d }
+        ch.on_close do
+          puts '>> channel closed.'
+          r << :EOF_SENTINEL
+          w << :EOF_SENTINEL
+        end
+        ch.request_pty do |ch, success|
+          ch = ch.send_channel_request 'shell' do |sh, success|
+            puts '>> shell opened.'
+            # EM::start_unix_domain_server('xkcd.sock', UNIXServerHandler)
+            # do |h|
+            #   h.channel = channel
+            # end
+            c = Proc.new do |data|
+              if :EOF_SENTINEL == data
+                channel.close
+              else
+                channel.send_data(data)
+                w.pop(&c)
+              end
+            end
+            w.pop(&c)
+          end
         end
       end
+      channel.wait
+      ssh.close
     end
-    session.listen_to($server) { |server|
-      socket = server.accept_nonblock
-      puts "Connection opened."
-      socket.extend(Net::SSH::BufferedIo)
-      session.listen_to(socket) { |io|
-        io.fill
-        data = io.read_available
-        if data
-          channel.send_data data
-        else
-          session.stop_listening_to socket
-          socket.close
-        end
-      }
-    }
-    session.loop { channel.active? }
   end
-#end
+  return r, w, ($counter += 1)
+end
