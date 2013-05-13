@@ -19,6 +19,5 @@ service Tangle {
   string      ping()
   TangleInfo  info()
   string      ssh(1: string user_id,
-                  2: string vm_class,
-                  3: string output) throws (1: SSHException e)
+                  2: string vm_class) throws (1: SSHException e)
 }
