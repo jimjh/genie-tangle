@@ -13,7 +13,6 @@ class TTYExtension
   def initialize
     @terms = {}
     @clients = {}
-    super
   end
 
   def incoming(message, callback)

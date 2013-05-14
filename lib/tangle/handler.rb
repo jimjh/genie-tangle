@@ -1,5 +1,6 @@
 # ~*~ encoding: utf-8 ~*~
 require 'tangle/support/traceable'
+require 'tangle/tty'
 
 module Tangle
 
@@ -31,33 +32,20 @@ module Tangle
     #
     # If a SSH connection to a VM of the requested VM class for the given user
     # already exists, a new channel is created on the connection. Otherwise, a
-    # new connection is opened. Output from the channel are sent on the output
-    # channel.
+    # new connection is opened. I/O is carried out using faye channels after
+    # the connection is opened.
     #
-    # @param  [String] user_id
-    # @param  [String] vm_class
-    # @param  [String] output
-    # @return [String] path to input pipe
+    # @param  [String] user_id      ID of user requesting VM access
+    # @param  [String] vm_class     Type of VM to allocate (currently ignored.)
     #
-    # @todo TODO use user_id, vm_class
-    # @todo TODO reuse
+    # @todo TODO use vm_class
     # @todo TODO should the hash table be persistent?
-    def ssh(user_id, vm_class, output)
-      Net::SSH.start 'beta.geniehub.org', 'passenger' do |ssh|
-        channel = ssh.open_channel do |ch|
-          ch.request_pty do |ch, success|
-            ch.exec "/usr/bin/vim" do |ch, success|
-              ch.send_data "ixkcd\033:w! wow.txt\n"
-              ch.send_data ":q\n"
-              ch.send_data "logout\n"
-            end
-          end
-          ch.on_data { |c, d| puts d }
-          ch.on_extended_data { |c, d| puts d }
-          ch.on_close { puts "Connection closed." }
-        end
-        ssh.loop { channel.active? }
-      end
+    def ssh(user_id, vm_class)
+      log_invocation
+      TTY.new user_id
+    rescue => e
+      Tangle.logger.error e
+      raise e
     end
 
     private

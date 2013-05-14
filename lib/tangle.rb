@@ -1,6 +1,7 @@
 # ~*~ encoding: utf-8 ~*~
 require 'pathname'
 require 'thrift'
+require 'faye'
 require 'pry'
 require 'active_support/core_ext/logger'
 
@@ -18,7 +19,7 @@ require 'tangle/client'
 module Tangle
   class << self
 
-    attr_reader :logger
+    attr_reader :logger, :faye
 
     # @option opts [String] log-file  ({Tangle::LOG_FILE})
     # @option opts [String] log-level ({Tangle::LOG_LEVEL})
@@ -30,10 +31,15 @@ module Tangle
     end
 
     # Starts a RPC server. See {Tangle::Server} for options.
+    # @todo TODO move faye to child process
+    # @todo TODO allow configuration of faye server
     # @return [void]
     def server(opts={})
       reset_logger opts
-      Server.new(opts).serve.value
+      EM.error_handler { |e| Tangle.logger.error e }
+      thrift = Server.new(opts).serve
+      Thread.new { faye.listen(9292); thrift.raise(Interrupt) }
+      thrift.value
     rescue Interrupt
       logger.info 'Untangled.'
     end
@@ -50,6 +56,12 @@ module Tangle
       else client.invoke { public_send(cmd, *argv) }
       end
       logger.info "Response: #{results.inspect}"
+    end
+
+    def faye
+      @faye ||= Faye::RackAdapter.new mount: '/faye',
+        timeout: 25,
+        extensions: [TTY::Extension.new]
     end
 
   end
