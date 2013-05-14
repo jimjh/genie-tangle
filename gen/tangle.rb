@@ -41,13 +41,13 @@ module Tangle
       raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'info failed: unknown result')
     end
 
-    def ssh(user_id, vm_class, output)
-      send_ssh(user_id, vm_class, output)
+    def ssh(user_id, vm_class)
+      send_ssh(user_id, vm_class)
       return recv_ssh()
     end
 
-    def send_ssh(user_id, vm_class, output)
-      send_message('ssh', Ssh_args, :user_id => user_id, :vm_class => vm_class, :output => output)
+    def send_ssh(user_id, vm_class)
+      send_message('ssh', Ssh_args, :user_id => user_id, :vm_class => vm_class)
     end
 
     def recv_ssh()
@@ -80,7 +80,7 @@ module Tangle
       args = read_args(iprot, Ssh_args)
       result = Ssh_result.new()
       begin
-        result.success = @handler.ssh(args.user_id, args.vm_class, args.output)
+        result.success = @handler.ssh(args.user_id, args.vm_class)
       rescue ::SSHException => e
         result.e = e
       end
@@ -157,12 +157,10 @@ module Tangle
     include ::Thrift::Struct, ::Thrift::Struct_Union
     USER_ID = 1
     VM_CLASS = 2
-    OUTPUT = 3
 
     FIELDS = {
       USER_ID => {:type => ::Thrift::Types::STRING, :name => 'user_id'},
-      VM_CLASS => {:type => ::Thrift::Types::STRING, :name => 'vm_class'},
-      OUTPUT => {:type => ::Thrift::Types::STRING, :name => 'output'}
+      VM_CLASS => {:type => ::Thrift::Types::STRING, :name => 'vm_class'}
     }
 
     def struct_fields; FIELDS; end
@@ -179,7 +177,7 @@ module Tangle
     E = 1
 
     FIELDS = {
-      SUCCESS => {:type => ::Thrift::Types::STRING, :name => 'success'},
+      SUCCESS => {:type => ::Thrift::Types::I64, :name => 'success'},
       E => {:type => ::Thrift::Types::STRUCT, :name => 'e', :class => ::SSHException}
     }
 
