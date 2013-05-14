@@ -43,7 +43,7 @@ module Tangle
 
     def ssh(user_id, vm_class)
       send_ssh(user_id, vm_class)
-      recv_ssh()
+      return recv_ssh()
     end
 
     def send_ssh(user_id, vm_class)
@@ -52,8 +52,9 @@ module Tangle
 
     def recv_ssh()
       result = receive_message(Ssh_result)
+      return result.success unless result.success.nil?
       raise result.e unless result.e.nil?
-      return
+      raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'ssh failed: unknown result')
     end
 
   end
@@ -79,7 +80,7 @@ module Tangle
       args = read_args(iprot, Ssh_args)
       result = Ssh_result.new()
       begin
-        @handler.ssh(args.user_id, args.vm_class)
+        result.success = @handler.ssh(args.user_id, args.vm_class)
       rescue ::SSHException => e
         result.e = e
       end
@@ -172,9 +173,11 @@ module Tangle
 
   class Ssh_result
     include ::Thrift::Struct, ::Thrift::Struct_Union
+    SUCCESS = 0
     E = 1
 
     FIELDS = {
+      SUCCESS => {:type => ::Thrift::Types::I64, :name => 'success'},
       E => {:type => ::Thrift::Types::STRUCT, :name => 'e', :class => ::SSHException}
     }
 

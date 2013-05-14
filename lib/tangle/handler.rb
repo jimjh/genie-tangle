@@ -40,9 +40,10 @@ module Tangle
     #
     # @todo TODO use vm_class
     # @todo TODO should the hash table be persistent?
+    # @return [Fixnum] terminal ID
     def ssh(user_id, vm_class)
       log_invocation
-      TTY.new user_id
+      TTY.new(user_id).object_id
     rescue => e
       Tangle.logger.error e
       raise e

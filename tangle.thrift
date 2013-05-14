@@ -18,6 +18,6 @@ exception SSHException {
 service Tangle {
   string      ping()
   TangleInfo  info()
-  void        ssh(1: string user_id,
+  i64         ssh(1: string user_id,
                   2: string vm_class) throws (1: SSHException e)
 }

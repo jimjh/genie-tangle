@@ -6,8 +6,8 @@ module Tangle
 
   class TTY
 
-    class << self; attr_accessor :users end
-    self.users = {}
+    class << self; attr_accessor :terms end
+    self.terms = {}
 
     attr_reader :read, :write, :owner
 

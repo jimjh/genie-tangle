@@ -38,7 +38,7 @@ module Tangle
       reset_logger opts
       EM.error_handler { |e| Tangle.logger.error e }
       thrift = Server.new(opts).serve
-      Thread.new { faye.listen(9292); thrift.raise(Interrupt) }
+      Thread.new { faye.listen(3300); thrift.raise(Interrupt) }
       thrift.value
     rescue Interrupt
       logger.info 'Untangled.'
@@ -59,7 +59,7 @@ module Tangle
     end
 
     def faye
-      @faye ||= Faye::RackAdapter.new mount: '/faye',
+      @faye ||= Faye::RackAdapter.new mount: '/socket',
         timeout: 25,
         extensions: [TTY::Extension.new]
     end
