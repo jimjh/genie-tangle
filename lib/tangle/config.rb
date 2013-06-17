@@ -18,4 +18,7 @@ module Tangle
   # Host name. Set to '::1' for localhost.
   HOST = 'localhost'
 
+  # Faye Port
+  FAYE_PORT = 3300
+
 end

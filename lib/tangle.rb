@@ -38,7 +38,7 @@ module Tangle
       reset_logger opts
       EM.error_handler { |e| Tangle.logger.error e }
       thrift = Server.new(opts).serve
-      Thread.new { faye.listen(3300); thrift.raise(Interrupt) }
+      Thread.new { faye.listen(FAYE_PORT); thrift.raise(Interrupt) }
       thrift.value
     rescue Interrupt
       logger.info 'Untangled.'

@@ -34,7 +34,7 @@ module Tangle
         return unless (terms = TTY.terms[user])
         return unless (term = terms.delete(message['data']))
         term.write.close
-        TTY.terms.delete(user) if terms.empty
+        TTY.terms.delete(user) if terms.empty?
       end
 
       # @return [String] user ID
