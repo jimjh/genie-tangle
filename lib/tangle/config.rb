@@ -1,6 +1,4 @@
-# ~*~ encoding: utf-8 ~*~
 require 'logger'
-require 'tangle/support/core_ext/deep_freeze'
 
 module Tangle
 
