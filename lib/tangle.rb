@@ -5,14 +5,10 @@ require 'faye'
 require 'pry'
 require 'active_support/core_ext/logger'
 
-# Import the generated ruby code.
-gen = Pathname.new(__FILE__).dirname + '..' + 'gen'
-$:.push gen
-require gen + 'tangle'
-
 require 'tangle/version'
 require 'tangle/config'
 require 'tangle/errors'
+require 'tangle/gen'
 require 'tangle/server'
 require 'tangle/client'
 

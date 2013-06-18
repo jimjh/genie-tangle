@@ -1,4 +1,6 @@
-# ~*~ encoding: utf-8 ~*~
+require 'tangle/config'
+require 'tangle/gen'
+
 module Tangle
 
   # Contains, configures, and controls the Thrift RPC client.
@@ -29,7 +31,7 @@ module Tangle
       @transport.open
       instance_eval(&block)
     rescue => e
-      Tangle.logger.error e.message
+      Tangle.logger.error e.message if Tangle.logger
     ensure
       @transport.close
     end
