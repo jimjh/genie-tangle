@@ -11,7 +11,7 @@ module Tangle
   LOG_LEVEL = ::Logger::INFO
 
   # Port number. Set to 0 for ephemeral port.
-  PORT = 0
+  PORT = 5379
 
   # Host name. Set to '::1' for localhost.
   HOST = 'localhost'

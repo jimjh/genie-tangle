@@ -1,12 +1,13 @@
-# ~*~ encoding: utf-8 ~*~
 require 'em-ssh'
+require 'active_support/core_ext/class/attribute'
 require 'tangle/support/closeable_queue'
 require 'tangle/tty_extension'
+
 module Tangle
 
   class TTY
 
-    class << self; attr_accessor :terms end
+    class_attribute :terms
     self.terms = {}
 
     attr_reader :read, :write, :owner
