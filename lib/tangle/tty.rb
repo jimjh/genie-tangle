@@ -5,6 +5,7 @@ require 'tangle/tty_extension'
 
 module Tangle
 
+  # TODO resize?
   class TTY
 
     class_attribute :terms
