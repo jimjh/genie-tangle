@@ -1,4 +1,3 @@
-# ~*~ encoding: utf-8 ~*~
 require 'thor'
 require 'tangle'
 
@@ -18,7 +17,7 @@ module Tangle
 
     desc 'client COMMAND', 'use client to invoke remote RPC call'
     option :host, type: :string,  default: HOST
-    option :port, type: :numeric, required: true
+    option :port, type: :numeric, default: PORT
     def client(*args)
       ::Tangle.client args.shift, args, options
     end

@@ -27,11 +27,12 @@ module Tangle
     end
 
     # Invokes given block within an open transport.
-    def invoke(&block)
+    def invoke
       @transport.open
-      instance_eval(&block)
+      yield self
     rescue => e
-      Tangle.logger.error e.message if Tangle.logger
+      Tangle.logger.error e.message if Tangle.respond_to? :logger
+      raise e
     ensure
       @transport.close
     end

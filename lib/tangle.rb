@@ -48,7 +48,7 @@ module Tangle
     def client(cmd=nil, argv=[], opts={})
       reset_logger opts
       client = Client.new(opts)
-      results = if cmd.nil? then client.invoke { pry }
+      results = if cmd.nil? then client.invoke { |c| c.pry }
       else client.invoke { public_send(cmd, *argv) }
       end
       logger.info "Response: #{results.inspect}"

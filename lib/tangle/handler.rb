@@ -1,4 +1,3 @@
-# ~*~ encoding: utf-8 ~*~
 require 'tangle/support/traceable'
 require 'tangle/tty'
 
@@ -25,7 +24,7 @@ module Tangle
     # @return [TangleInfo] basic information about Tangle
     def info
       log_invocation
-      TangleInfo.new uptime: uptime, threads: threads
+      TangleInfo.new uptime: uptime, threads: threads, terminals: TTY.count
     end
 
     # Creates a new SSH channel.
@@ -39,7 +38,6 @@ module Tangle
     # @param  [String] vm_class     Type of VM to allocate (currently ignored.)
     #
     # @todo TODO use vm_class
-    # @todo TODO should the hash table be persistent?
     # @return [Fixnum] terminal ID
     def ssh(user_id, vm_class)
       log_invocation

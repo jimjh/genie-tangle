@@ -1,4 +1,3 @@
-# ~*~ encoding: utf-8 ~*~
 require './lib/tangle/version'
 
 Gem::Specification.new do |gem|
@@ -7,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.name          = 'tangle'
   gem.version       = Tangle::VERSION
   gem.platform      = Gem::Platform::RUBY
-  gem.required_ruby_version = '>= 1.9.2'
+  gem.required_ruby_version = '>= 2.0.0'
 
   # LICENSES
   gem.authors       = ['Jiunn Haur Lim']

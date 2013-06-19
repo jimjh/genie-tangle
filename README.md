@@ -30,7 +30,7 @@ $ tangle help
 To start the server on OS-selected port, use
 
 ```sh
-$ tangle server
+$ tangle server --port=0
 ```
 
 To start the client, use

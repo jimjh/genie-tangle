@@ -10,10 +10,12 @@ class TangleInfo
   include ::Thrift::Struct, ::Thrift::Struct_Union
   UPTIME = 1
   THREADS = 2
+  TERMINALS = 3
 
   FIELDS = {
     UPTIME => {:type => ::Thrift::Types::DOUBLE, :name => 'uptime'},
-    THREADS => {:type => ::Thrift::Types::MAP, :name => 'threads', :key => {:type => ::Thrift::Types::STRING}, :value => {:type => ::Thrift::Types::I32}}
+    THREADS => {:type => ::Thrift::Types::MAP, :name => 'threads', :key => {:type => ::Thrift::Types::STRING}, :value => {:type => ::Thrift::Types::I32}},
+    TERMINALS => {:type => ::Thrift::Types::I64, :name => 'terminals'}
   }
 
   def struct_fields; FIELDS; end

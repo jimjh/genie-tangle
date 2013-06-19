@@ -9,6 +9,7 @@
 struct TangleInfo {
   1: double           uptime,     # in seconds
   2: map<string, i32> threads     # { 'total' => xx, 'running' => xx }
+  3: i64              terminals   # number of terminals
 }
 
 exception SSHException {

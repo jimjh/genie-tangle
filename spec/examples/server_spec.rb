@@ -24,7 +24,7 @@ describe Tangle::Server do
     end
 
     it 'sets the port number to default value' do
-      Tangle::Server.new.port.should be_zero
+      Tangle::Server.new.port.should be 5379
     end
 
   end

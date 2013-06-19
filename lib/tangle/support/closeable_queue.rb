@@ -1,5 +1,5 @@
-# ~*~ encoding: utf-8 ~*~
 require 'eventmachine'
+
 module Tangle
   module Support
 
