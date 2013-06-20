@@ -1,5 +1,3 @@
-# ~*~ encoding: utf-8 ~*~
-require 'pathname'
 require 'thrift'
 require 'faye'
 require 'pry'
@@ -8,9 +6,9 @@ require 'active_support/core_ext/logger'
 require 'tangle/version'
 require 'tangle/config'
 require 'tangle/errors'
-require 'tangle/gen'
 require 'tangle/server'
 require 'tangle/client'
+require 'tangle/tty_extension'
 
 module Tangle
   class << self
@@ -32,7 +30,7 @@ module Tangle
     # @return [void]
     def server(opts={})
       reset_logger opts
-      EM.error_handler { |e| Tangle.logger.error e }
+      EM.error_handler { |e| logger.error e }
       thrift = Server.new(opts).serve
       Thread.new { faye.listen(FAYE_PORT); thrift.raise(Interrupt) }
       thrift.value

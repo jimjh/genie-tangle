@@ -6,12 +6,12 @@ module Tangle
   # Provides implementation for the RPC interface. Refer to `tangle.thrift` for
   # details.
   class Handler
-
     include Support::Traceable
 
-    attr_reader :started
+    attr_reader :started, :logger
 
-    def initialize
+    def initialize(logger: nil)
+      @logger  = logger || raise(ArgumentError, ':logger is required')
       @started = Time.now
     end
 
@@ -41,9 +41,9 @@ module Tangle
     # @return [Fixnum] terminal ID
     def ssh(user_id, vm_class)
       log_invocation
-      TTY.new(user_id).object_id
+      TTY.create(user_id).object_id
     rescue => e
-      Tangle.logger.error e
+      logger.error e
       raise e
     end
 
@@ -63,8 +63,8 @@ module Tangle
 
     # Logs the caller of this method.
     def log_invocation
-      if Tangle.logger.debug?
-        Tangle.logger.debug 'rpc -> ' + caller[0][/`([^']*)'/, 1]
+      if logger.debug?
+        logger.debug 'rpc -> ' + caller[0][/`([^']*)'/, 1]
       end
     end
 

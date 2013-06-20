@@ -1,5 +1,6 @@
 require 'thor'
 require 'tangle'
+require 'active_support/core_ext/hash/indifferent_access'
 
 module Tangle
 
@@ -12,14 +13,14 @@ module Tangle
     desc 'server', 'start a RPC server'
     option :port, type: :numeric, default: PORT
     def server
-      ::Tangle.server options
+      ::Tangle.server options.with_indifferent_access
     end
 
     desc 'client COMMAND', 'use client to invoke remote RPC call'
     option :host, type: :string,  default: HOST
     option :port, type: :numeric, default: PORT
     def client(*args)
-      ::Tangle.client args.shift, args, options
+      ::Tangle.client args.shift, args, options.with_indifferent_access
     end
 
     def self.start(argv)
