@@ -27,8 +27,8 @@ module Tangle
 
     def initialize(user_id, opts={})
       @owner, @write = user_id, Support::CloseableQueue.new
-      open_ssh opts
       TTY << self
+      open opts
     end
 
     # Retrieves terminals for given owner and tty id.
@@ -71,7 +71,7 @@ module Tangle
     # FIXME remove hardcoded host and user
     # Creates a new SSH session and opens a channel on it. If any of the steps
     # fail, the session is closed and the tty is deleted.
-    def open_ssh(opts)
+    def open(opts)
       EM::Ssh.start 'beta.geniehub.org', 'codex' do |session|
         session.errback  do |err|
           Tangle.logger.error "#{err} (#{err.class})"

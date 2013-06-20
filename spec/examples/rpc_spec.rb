@@ -1,4 +1,3 @@
-# ~*~ encoding: utf-8 ~*~
 require 'spec_helper'
 
 describe Tangle::Handler do
@@ -11,6 +10,7 @@ describe Tangle::Handler do
 
     its(:info) { should respond_to :uptime }
     its(:info) { should respond_to :threads }
+    its(:info) { should respond_to :terminals }
 
     it 'reports the uptime' do
       subject.info.uptime.should >= 0
