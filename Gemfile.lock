@@ -92,8 +92,8 @@ GEM
     pry-nav (0.2.3)
       pry (~> 0.9.10)
     rack (1.5.2)
-    railsless-deploy (1.1.2)
     rake (10.0.4)
+    rb-readline (0.5.0)
     redcarpet (2.3.0)
     rspec (2.13.0)
       rspec-core (~> 2.13.0)
@@ -128,8 +128,8 @@ DEPENDENCIES
   faker (~> 1.1)
   mocha (~> 0.10)
   pry-nav
-  railsless-deploy (~> 1.1)
   rake (~> 10.0)
+  rb-readline
   redcarpet
   rspec (~> 2.13)
   tangle!
