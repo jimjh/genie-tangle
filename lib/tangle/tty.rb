@@ -15,8 +15,15 @@ module Tangle
 
     private_class_method :new
 
+    # @return [SSH::Base] tty
     def self.create(user_id, opts={})
-      tty = SSH::Base.new owner: user_id, faye_client: faye_client, logger: logger
+      cls = case ENV['RACK_ENV']
+      when 'production' then SSH::Remote
+      else SSH::Local
+      end
+      tty = cls.new owner: user_id,
+        faye_client: faye_client,
+        logger: logger
       TTY << tty
       tty.on_close { TTY.delete tty }
       tty.open opts

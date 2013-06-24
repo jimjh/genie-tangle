@@ -21,7 +21,8 @@ module Tangle
       @logger = Logger.new(opts['log-file'] || LOG_FILE)
       @logger.level     = opts['log-level'] || LOG_LEVEL
       @logger.formatter = Logger::Formatter.new
-      @logger.info "Tangle v#{VERSION}"
+      @logger.info "Tangle v#{VERSION} [#{ENV['RACK_ENV']}]"
+      Faye.logger = @logger.method(:info)
     end
 
     # Starts a RPC server. See {Tangle::Server} for options.
