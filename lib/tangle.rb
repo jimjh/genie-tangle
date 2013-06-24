@@ -1,5 +1,3 @@
-# ~*~ encoding: utf-8 ~*~
-require 'pathname'
 require 'thrift'
 require 'faye'
 require 'pry'
@@ -8,9 +6,9 @@ require 'active_support/core_ext/logger'
 require 'tangle/version'
 require 'tangle/config'
 require 'tangle/errors'
-require 'tangle/gen'
 require 'tangle/server'
 require 'tangle/client'
+require 'tangle/tty_extension'
 
 module Tangle
   class << self
@@ -23,7 +21,8 @@ module Tangle
       @logger = Logger.new(opts['log-file'] || LOG_FILE)
       @logger.level     = opts['log-level'] || LOG_LEVEL
       @logger.formatter = Logger::Formatter.new
-      @logger.info "Tangle v#{VERSION}"
+      @logger.info "Tangle v#{VERSION} [#{ENV['RACK_ENV']}]"
+      Faye.logger = @logger.method(:info)
     end
 
     # Starts a RPC server. See {Tangle::Server} for options.
@@ -32,7 +31,7 @@ module Tangle
     # @return [void]
     def server(opts={})
       reset_logger opts
-      EM.error_handler { |e| Tangle.logger.error e }
+      EM.error_handler { |e| logger.error e }
       thrift = Server.new(opts).serve
       Thread.new { faye.listen(FAYE_PORT); thrift.raise(Interrupt) }
       thrift.value
@@ -49,7 +48,7 @@ module Tangle
       reset_logger opts
       client = Client.new(opts)
       results = if cmd.nil? then client.invoke { |c| c.pry }
-      else client.invoke { public_send(cmd, *argv) }
+      else client.invoke { |c| c.public_send(cmd, *argv) }
       end
       logger.info "Response: #{results.inspect}"
     end

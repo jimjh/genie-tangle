@@ -1,21 +1,23 @@
-# ~*~ encoding: utf-8 ~*~
+require 'tangle/gen'
 require 'tangle/handler'
+
 module Tangle
 
   # Contains, configures, and controls the Thrift RPC server.
   class Server
 
-    attr_reader :port, :socket, :thread
+    attr_reader :port, :socket, :thread, :logger
 
     # Number of seconds to wait while server is starting up
     SPIN = 0.1
 
     # @option opts [Fixnum] port     port number
     def initialize(opts={})
-      Tangle.logger.info 'Initializing Tangle server ...'
-      @port     = opts['port'] || PORT
+      @logger   = opts[:logger] || Tangle.logger || raise(ArgumentError, ':logger is required')
+      @port     = opts[:port]   || PORT
+      logger.info 'Initializing Tangle server ...'
       @socket   = Thrift::ServerSocket.new('localhost', port)
-      processor = Processor.new Handler.new
+      processor = Processor.new Handler.new(logger: logger)
       factory   = Thrift::BufferedTransportFactory.new
       @server   = Thrift::ThreadPoolServer.new(processor, socket, factory)
     end
@@ -25,10 +27,10 @@ module Tangle
     # only after the server has stopped.
     # @return [Thread] thread         main thread for RPC server
     def serve
-      Tangle.logger.info 'Starting Tangle service ...'
+      logger.info 'Starting Tangle service ...'
       @thread = Thread.new { @server.serve }
       sleep SPIN while @thread.alive? and not socket.handle
-      @port = socket.handle.addr[1] and Tangle.logger.info status if @thread.alive?
+      @port = socket.handle.addr[1] and logger.info(status) if @thread.alive?
       @thread
     end
 

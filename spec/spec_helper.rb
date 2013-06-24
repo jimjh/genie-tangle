@@ -1,5 +1,5 @@
-# ~*~ encoding: utf-8 ~*~
 require 'rubygems'
+require 'pathname'
 require 'bundler/setup'
 require 'tmpdir'
 require 'rspec'

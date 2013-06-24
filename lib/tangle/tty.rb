@@ -1,34 +1,33 @@
-require 'em-ssh'
 require 'thread'
 require 'active_support/core_ext/class/attribute'
-require 'tangle/support/closeable_queue'
-require 'tangle/tty_extension'
+require 'tangle/ssh'
 
 module Tangle
 
-  # This class serves as a wrapper around Net-SSH's pseudo-tty and is designed
-  # to be thread-safe. Since EM is asynchronous, during initialization the
-  # success of the connection is unknown - on failure, the terminal is removed
-  # from the +TTY.terms+ array, and a kill event is published.
-  #
-  # When data is received on stdout and stderr, a data event is published on
-  # +/:owner/data+ with the format +{ id: tty_id, data: data }+.
-  #
-  # When the SSH connection is terminated, a kill event is published on
-  # +/:owner/kill+ with the format +{ id: tty_id }+.
-  # @todo TODO resize?
+  # This class is designed to be thread-safe tty factory. During
+  # initialization, the success of the connection is unknown; however, on
+  # failure, the dead terminal is removed from the +TTY.terms+ array.
   class TTY
 
     class_attribute :terms, :mutex
     self.terms  = {} # XXX: state should be persisted
     self.mutex  = Mutex.new
 
-    attr_reader :read, :write, :owner
+    private_class_method :new
 
-    def initialize(user_id, opts={})
-      @owner, @write = user_id, Support::CloseableQueue.new
-      open_ssh opts
-      TTY << self
+    # @return [SSH::Base] tty
+    def self.create(user_id, opts={})
+      cls = case ENV['RACK_ENV']
+      when 'production' then SSH::Remote
+      else SSH::Local
+      end
+      tty = cls.new owner: user_id,
+        faye_client: faye_client,
+        logger: logger
+      TTY << tty
+      tty.on_close { TTY.delete tty }
+      tty.open opts
+      tty
     end
 
     # Retrieves terminals for given owner and tty id.
@@ -60,96 +59,14 @@ module Tangle
       mutex.synchronize { terms.count }
     end
 
-    private
-
-    def close
-      TTY.delete self
-      kill
-    end
-
-    # TODO multiple channels on the same connection?
-    # FIXME remove hardcoded host and user
-    # Creates a new SSH session and opens a channel on it. If any of the steps
-    # fail, the session is closed and the tty is deleted.
-    def open_ssh(opts)
-      EM::Ssh.start 'beta.geniehub.org', 'codex' do |session|
-        session.errback  do |err|
-          Tangle.logger.error "#{err} (#{err.class})"
-          close
-        end
-        session.callback do |ssh|
-          Tangle.logger.info '[tty] session started'
-          channel = open_channel ssh, opts
-          channel.wait
-          ssh.close
-          Tangle.logger.info '[tty] session closed'
-          close
-        end
-      end
-    end
-
-    # Opens a channel on the given SSH session and requests for a pseudo tty
-    # with a shell.
-    # @return [EventMachine::Ssh::Connection::Channel] channel
-    def open_channel(ssh, opts)
-      channel = ssh.open_channel do |ch|
-        Tangle.logger.info '[tty] channel opened'
-        set_read_callbacks ch
-        ch.request_pty(opts) do |pty, ok|
-          open_shell(channel, pty) if ok
-        end
-      end
-    end
-
-    # Opens a shell on the given pty.
-    # @return [void]
-    def open_shell(channel, pty)
-      pty.send_channel_request 'shell' do |_, success|
-        if success
-          Tangle.logger.info '[tty] shell opened'
-          set_write_callbacks channel
-        end
-      end
-    end
-
-    # @return [void]
-    def set_read_callbacks(ch)
-      ch.on_data { |_, d| publish d }
-      ch.on_extended_data { |_, d| publish d }
-      ch.on_close { Tangle.logger.info '[tty] channel closed' }
-    end
-
-    # @return [void]
-    def set_write_callbacks(ch)
-      @write.on_close { ch.close if ch.active? }
-      @write.on_data  { |data| ch.send_data data }
-    end
-
-    # @return [Faye::Client] faye client
-    def faye
+    def self.faye_client
       Tangle.faye.get_client
     end
+    private_class_method :faye_client
 
-    # Publishes the given data on the data channel
-    # @return [void]
-    def publish(data)
-      faye.publish data_channel, id: object_id, data: data
-    end
-
-    # Tells user to kill terminal with given ID
-    # @return [void]
-    def kill
-      faye.publish kill_channel, id: object_id
-    end
-
-    def kill_channel
-      "/#{owner}/kill"
-    end
-
-    def data_channel
-      "/#{owner}/data"
+    def self.logger
+      Tangle.logger
     end
 
   end
-
 end
