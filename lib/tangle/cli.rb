@@ -11,7 +11,8 @@ module Tangle
     class_option :'log-level', type: :numeric, default: LOG_LEVEL
 
     desc 'server', 'start a RPC server'
-    option :port, type: :numeric, default: PORT
+    option :port,        type: :numeric, default: PORT
+    option :'faye-port', type: :numeric, default: FAYE_PORT
     def server
       ::Tangle.server options.with_indifferent_access
     end

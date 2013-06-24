@@ -23,6 +23,7 @@ module Tangle
       @logger.formatter = Logger::Formatter.new
       @logger.info "Tangle v#{VERSION} [#{ENV['RACK_ENV']}]"
       Faye.logger = @logger.method(:info)
+      EM.error_handler { |e| logger.error e }
     end
 
     # Starts a RPC server. See {Tangle::Server} for options.
@@ -31,9 +32,11 @@ module Tangle
     # @return [void]
     def server(opts={})
       reset_logger opts
-      EM.error_handler { |e| logger.error e }
       thrift = Server.new(opts).serve
-      Thread.new { faye.listen(FAYE_PORT); thrift.raise(Interrupt) }
+      Thread.new do
+        faye.listen(opts['faye-port'] || FAYE_PORT)
+        thrift.raise(Interrupt)
+      end
       thrift.value
     rescue Interrupt
       logger.info 'Untangled.'
