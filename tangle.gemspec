@@ -31,6 +31,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'faye',          '~> 0.8'
   gem.add_dependency 'thin',          '~> 1.5'
   gem.add_dependency 'em-ssh',        '~> 0.5.1'
+  gem.add_dependency 'aws-sdk',       '~> 1.11'
 
   gem.add_development_dependency 'yard'
   gem.add_development_dependency 'redcarpet'
