@@ -18,6 +18,7 @@ role :app, 'beta.geniehub.org'
 
 after 'deploy:restart', 'deploy:cleanup'
 after 'deploy:setup',   'deploy:upstart'
+# TODO copy tangle.pem, secrets.yml
 
 def with_user(user)
   old_user = user

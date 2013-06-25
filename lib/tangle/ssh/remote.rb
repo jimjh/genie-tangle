@@ -1,4 +1,5 @@
 require 'aws-sdk'
+require 'openssl'
 
 module Tangle::SSH
   class Remote < Base
@@ -8,9 +9,12 @@ module Tangle::SSH
     SSH_RETRY_PERIOD = 10 # in seconds
 
     attr_accessor :retries
+    attr_reader   :unix_user, :unix_pass
 
     def initialize(opts={})
-      @retries = 0
+      @retries   = 0
+      @unix_user = unix_user_for opts[:owner]
+      @unix_pass = unix_pass_for opts[:owner]
       super opts
     end
 
@@ -21,6 +25,19 @@ module Tangle::SSH
 
     private
 
+    # @param  [String] owner       user ID
+    # @return [String] generated UNIX user name
+    def unix_user_for(owner)
+      # use the first 24 bytes
+      OpenSSL::HMAC.hexdigest('SHA1', Tangle::Secrets['UNIX_USER_SECRET'], owner)[0,12]
+    end
+
+    # @param  [String] owner       user ID
+    # @return [String] generated UNIX user password
+    def unix_pass_for(owner)
+      OpenSSL::HMAC.hexdigest('SHA256', Tangle::Secrets['UNIX_USER_SECRET'], owner)
+    end
+
     # Pick an existing VM or launch a new instance.
     # @return [AWS::EC2::Instance] vm
     def pick_vm
@@ -29,18 +46,51 @@ module Tangle::SSH
 
     # Starts a SSH session to the given VM.
     def open_vm(vm, opts)
-      logger.info "[tty] initiating SSH session with #{vm.id}"
-      EM::Ssh.start vm.dns_name, 'ubuntu', ssh_opts do |session|
-        session.errback  do |err|
+      ensure_unix_user_exists_on vm do
+        start_user_session_on vm, opts
+      end
+    end
+
+    def ensure_unix_user_exists_on(vm)
+      logger.info "[tty] initiating SSH session with #{vm.id} as `ubuntu`"
+      opts = ssh_opts.merge(keys: [PRIVATE_KEY])
+      EM::Ssh.start vm.dns_name, 'ubuntu', opts do |session|
+        session.errback do |err|
           logger.error "#{err} (#{err.class})"
           logger.info  "[tty] session closed <x> #{vm.id}"
-          retry? ? _retry { open_vm vm, opts } : close
+          retry? ? _retry { ensure_unix_user_exists_on vm } : close
         end
         session.callback do |ssh|
           logger.info "[tty] session started <-> #{vm.id}"
+          ssh.open_channel do |channel|
+            channel.exec("./ensure_user_exists.sh #{unix_user}") do |ch|
+              channel.on_data { |_, data| logger.info "[ssh] #{data}" }
+              channel.on_extended_data { |_, data| logger.info "[ssh] #{data}" }
+              channel.send_data unix_pass
+              channel.eof!
+            end
+          end.wait
+          ssh.close
+          block_given? ? yield : close
+        end
+      end
+    end
+
+    def start_user_session_on(vm, opts)
+      options = ssh_opts
+      options[:auth_methods] << 'password'
+      options[:password] = unix_pass
+      EM::Ssh.start vm.dns_name, unix_user, options do |session|
+        session.errback  do |err|
+          logger.error "#{err} (#{err.class})"
+          logger.info  "[tty] session closed <x> #{unix_user}@#{vm.id}"
+          close
+        end
+        session.callback do |ssh|
+          logger.info "[tty] session started <-> #{unix_user}@#{vm.id}"
           open_channel(ssh, opts).wait
           ssh.close
-          logger.info "[tty] session closed <x> #{vm.id}"
+          logger.info "[tty] session closed <x> #{unix_user}@#{vm.id}"
           close
         end
       end
@@ -82,7 +132,6 @@ module Tangle::SSH
 
     def ssh_opts
       {
-        keys:         [PRIVATE_KEY],
         logger:       logger,
         auth_methods: %w[publickey]
       }
