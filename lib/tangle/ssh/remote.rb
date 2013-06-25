@@ -139,7 +139,7 @@ module Tangle::SSH
 
     def vm_opts
       {
-        image_id: 'ami-e995e380',
+        image_id: 'ami-b31f6cda',
         key_name: 'tangle',
         security_groups: 'tangle-vms',
         instance_type: 't1.micro',
