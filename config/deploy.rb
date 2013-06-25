@@ -13,14 +13,13 @@ set :keep_releases, 5
 
 set :app_port,      5379
 set :faye_port,     3400
-
-set :secrets,       %w[secrets.yml tangle.pem]
+set :secret_files,  %w[secrets.yml tangle.pem]
 
 role :app, 'beta.geniehub.org'
 
-after 'deploy:update',  'deploy:secrets'
-after 'deploy:restart', 'deploy:cleanup'
-after 'deploy:setup',   'deploy:upstart'
+before 'deploy:restart',  'deploy:secrets'
+after  'deploy:restart', 'deploy:cleanup'
+after  'deploy:setup',   'deploy:upstart'
 
 def with_user(user)
   old_user = user
@@ -65,8 +64,9 @@ namespace :deploy do
   end
 
   task :secrets do
-    secrets.each do |secret|
-      upload("#{fetch(:template_dir, 'config')}/#{secret}", "#{shared_path}/config/#{secret}")
+    run "mkdir -p #{shared_path}/config"
+    secret_files.each do |secret|
+      top.upload "config/#{secret}", "#{shared_path}/config/#{secret}"
       run "ln -fs -- #{shared_path}/config/#{secret} #{release_path}/config"
     end
   end
