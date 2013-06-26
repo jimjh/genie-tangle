@@ -8,11 +8,11 @@
 
   <body>
     <div data-tty></div>
-    <script src='http://localhost:3300/socket/client.js'></script>
+    <script src='http://localhost:3400/socket/client.js'></script>
     <script src='/term.js'></script>
     <script src='/tty.js'></script>
     <script>
-      var fayeServer = 'http://localhost:3300/socket';
+      var fayeServer = 'http://localhost:3400/socket';
       function ready(terminalID) {
         tty.open(0);
         var win = new tty.Window($('[data-tty]')[0]);

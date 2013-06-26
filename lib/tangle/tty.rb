@@ -9,21 +9,20 @@ module Tangle
   # failure, the dead terminal is removed from the +TTY.terms+ array.
   class TTY
 
-    class_attribute :terms, :mutex
+    EXPIRY_TIMER = 15*60 # check every 15 minutes
+
+    class_attribute :terms, :mutex, :timer_added
     self.terms  = {} # XXX: state should be persisted
     self.mutex  = Mutex.new
+    self.timer_added = false
 
     private_class_method :new
 
     # @return [SSH::Base] tty
     def self.create(user_id, opts={})
-      cls = case ENV['RACK_ENV']
-      when 'production' then SSH::Remote
-      else SSH::Local
-      end
-      tty = cls.new owner: user_id,
-        faye_client: faye_client,
-        logger: logger
+      add_timer unless timer_added
+      cls = (ENV['RACK_ENV'] == 'production') ? SSH::Remote : SSH::Local
+      tty = cls.new owner: user_id, faye_client: faye_client, logger: logger
       TTY << tty
       tty.on_close { TTY.delete tty }
       tty.open opts
@@ -66,6 +65,24 @@ module Tangle
 
     def self.logger
       Tangle.logger
+    end
+
+    def self.each
+      terms.each do |_, ttys|
+        ttys.each { |_, tty| yield tty }
+      end
+    end
+
+    def self.add_timer
+      EM.add_periodic_timer(EXPIRY_TIMER) do
+        self.each do |tty|
+          if tty.expired?
+            logger.info "[tty] tty for #{tty.owner} expired"
+            tty.close
+          end
+        end
+      end
+      self.timer_added = true
     end
 
   end

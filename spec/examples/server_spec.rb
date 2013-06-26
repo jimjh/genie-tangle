@@ -19,7 +19,7 @@ describe Tangle::Server do
   describe '#initialize' do
 
     it 'sets the port number' do
-      Tangle::Server.new('port' => rand).port.should be(rand)
+      Tangle::Server.new(port: rand).port.should be(rand)
     end
 
     it 'sets the port number to default value' do
