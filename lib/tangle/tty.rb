@@ -69,9 +69,7 @@ module Tangle
 
     def self.each
       terms.each do |_, ttys|
-        ttys.each do |_, tty|
-          yield tty
-        end
+        ttys.each { |_, tty| yield tty }
       end
     end
 

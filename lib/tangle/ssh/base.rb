@@ -39,6 +39,7 @@ module Tangle
       end
 
       def expired?
+        logger.info(Time.now - @last)
         Time.now - @last > EXPIRY_SECONDS
       end
 
