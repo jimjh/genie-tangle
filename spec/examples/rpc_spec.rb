@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe Tangle::Handler do
 
+  subject { Tangle::Handler.new logger: Logger.new('/dev/null') }
+
   describe '#ping' do
     its(:ping) { should eq 'pong!' }
   end

@@ -14,10 +14,13 @@ module Tangle
     # @todo TODO deal with resize?
     class Base
 
+      EXPIRY_SECONDS = 30*60 # 30 minutes
+
       attr_reader :owner, :write
 
       def initialize(owner: nil, faye_client: nil, logger: nil)
         @owner, @faye_client, @logger = owner, faye_client, logger
+        @last  = Time.now
         @write = Support::CloseableQueue.new
         @listeners = []
       end
@@ -33,6 +36,11 @@ module Tangle
 
       def open(opts={})
         raise NotImplementedError, 'SSH::Base is an abstract class'
+      end
+
+      def expired?
+        logger.info(Time.now - @last)
+        Time.now - @last > EXPIRY_SECONDS
       end
 
       private
@@ -73,7 +81,7 @@ module Tangle
       # @return [void]
       def set_write_callbacks(ch)
         @write.on_close { ch.close if ch.active? }
-        @write.on_data  { |data| ch.send_data data }
+        @write.on_data  { |data| @last = Time.now; ch.send_data data }
       end
 
       # Publishes the given data on the data channel

@@ -10,8 +10,8 @@ module Tangle
 
     attr_reader :started, :logger
 
-    def initialize(logger: nil)
-      @logger  = logger || raise(ArgumentError, ':logger is required')
+    def initialize(logger: Logger.new)
+      @logger  = logger
       @started = Time.now
     end
 
