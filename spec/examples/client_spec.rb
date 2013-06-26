@@ -9,7 +9,7 @@ describe Tangle do
       Thrift::BufferedTransport.any_instance.expects(:open)
       Thrift::BufferedTransport.any_instance.expects(:close)
       Tangle::Client.any_instance.expects(:ping).once.returns('pong')
-      Tangle.client 'ping', nil, 'port' => 0
+      Tangle.client 'ping', nil, port: 0
     end
 
   end
@@ -19,18 +19,18 @@ end
 describe Tangle::Client do
 
   let(:rand_string) { SecureRandom.uuid }
-  subject { Tangle::Client.new 'port' => port }
+  subject { Tangle::Client.new port: port }
 
   describe '#initialize' do
 
     it 'sets host, port' do
-      c = Tangle::Client.new('host' => rand_string, 'port' => rand)
+      c = Tangle::Client.new(host: rand_string, port: rand)
       c.host.should eq rand_string
       c.port.should eq rand
     end
 
     it 'sets host to default value' do
-      c = Tangle::Client.new('port' => rand)
+      c = Tangle::Client.new(port: rand)
       c.host.should eq Tangle::HOST
     end
 

@@ -20,5 +20,19 @@ describe Tangle::TTY do
     end
   end
 
+  #describe '.create' do
+  #  before(:each) { Thread.new { EM.run {} } }
+  #  let(:tty) { OpenStruct.new expired?: true }
+  #  context 'given expired terminal' do
+  #    it 'closes the terminal' do
+  #      Tangle::SSH::Local.expects(:new).returns(tty)
+  #      tty.stubs(:on_close).returns(true)
+  #      tty.stubs(:open).returns(true)
+  #      Tangle::TTY.create '0'
+  #      Tangle::TTY.timer_added.should be_true
+  #    end
+  #  end
+  #end
+
 end
 
